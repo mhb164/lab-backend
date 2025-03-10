@@ -1,0 +1,25 @@
+﻿<Project>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>12.0</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+
+		<VersionPrefix>1.7.0</VersionPrefix>
+		<VersionSufix>alpha</VersionSufix>
+
+		<Version>$(VersionPrefix)</Version>
+		<FileVersion>$(VersionPrefix)</FileVersion>
+		<InformationalVersion Condition="'$(VersionSufix)' == ''">$(VersionPrefix)</InformationalVersion>
+		<InformationalVersion Condition="'$(VersionSufix)' != ''">$(VersionPrefix)-$(VersionSufix)</InformationalVersion>
+		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+
+		<Authors></Authors>
+		<CompanyName>Tizpusoft</CompanyName>
+		<Copyright>© $(CompanyName) $([System.DateTime]::UtcNow.Year) - All Rights Reserved</Copyright>
+		<AssemblyTitleSufix>$([System.DateTime]::UtcNow.ToString(yyyy-MM-dd HH:mm:ss zzz))</AssemblyTitleSufix>
+		<Product>Backend Laboratory</Product>
+
+		<RootNamespace>Backend</RootNamespace>
+	</PropertyGroup>
+</Project>
