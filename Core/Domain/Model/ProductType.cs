@@ -1,4 +1,4 @@
-﻿namespace Backend.Model;
+﻿namespace Laboratory.Backend.Model;
 
 public class ProductType
 {

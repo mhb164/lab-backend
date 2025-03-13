@@ -1,6 +1,4 @@
-﻿using Backend.Dto;
-
-namespace Backend;
+﻿namespace Laboratory.Backend.Interfaces;
 
 public interface IProductTypesService
 {

@@ -1,20 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Backend.Model;
+using Laboratory.Backend.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend.Repositories;
+namespace Laboratory.Backend.Repositories;
 
 public class UserRepository : IUserRepository
 {
     private readonly ILogger? _logger;
-    private readonly BackendDbContext _context;
+    private readonly AuthDbContext _context;
 
-    public UserRepository(ILogger<UserRepository>? logger, BackendDbContext context)
+    public UserRepository(ILogger<UserRepository>? logger, AuthDbContext context)
     {
         _logger = logger;
         _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -25,14 +25,16 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         => await _context.Users
-            .Include(u => u.LdapUsernames)
+            .Include(u => u.LdapAccounts)
+            .Include(u => u.Emails)
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
 
     public async Task<User?> GetByNameAsync(string name, CancellationToken cancellationToken)
     {
         name = name.ToLower();//Ef Core doesn't compile x.Name.Equals Ignore case!
         return await _context.Users
-            .Include(u => u.LdapUsernames)
+            .Include(u => u.LdapAccounts)
+            .Include(u => u.Emails)
             .FirstOrDefaultAsync(u => u.Username.ToLower() == name, cancellationToken);
     }
 

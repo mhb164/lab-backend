@@ -1,6 +1,4 @@
-﻿using Backend.Config;
-
-namespace Backend.Options;
+﻿namespace Laboratory.Backend.Options;
 
 public class WebHostingOptions
 {

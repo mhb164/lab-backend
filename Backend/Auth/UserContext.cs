@@ -1,6 +1,4 @@
-﻿using Backend.Interfaces;
-
-namespace Backend.Auth;
+﻿namespace Laboratory.Backend.Auth;
 
 public class UserContext : IUserContext
 {

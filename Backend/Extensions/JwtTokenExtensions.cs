@@ -1,6 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-
-namespace Backend.Extensions;
+﻿namespace Laboratory.Backend.Extensions;
 
 public static class JwtTokenExtensions
 {

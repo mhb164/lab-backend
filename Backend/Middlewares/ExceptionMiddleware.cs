@@ -1,8 +1,8 @@
-﻿namespace Backend.Middlewares;
+﻿namespace Laboratory.Backend.Middlewares;
 
 public class ExceptionMiddleware
 {
-    private readonly ILogger? _logger;
+    private readonly Microsoft.Extensions.Logging.ILogger? _logger;
     private readonly RequestDelegate _next;
 
     public ExceptionMiddleware(ILogger<ExceptionMiddleware>? logger, RequestDelegate next)

@@ -1,0 +1,16 @@
+﻿global using Laboratory.Auth;
+global using Laboratory.Backend.Auth;
+global using Laboratory.Backend.Config;
+global using Laboratory.Backend.Dto;
+global using Laboratory.Backend.Interfaces;
+global using Laboratory.Backend.Model;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Storage;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.IdentityModel.Tokens;
+global using System.DirectoryServices.Protocols;
+global using System.IdentityModel.Tokens.Jwt;
+global using System.Net;
+global using System.Security.Claims;
+global using System.Security.Cryptography;
+global using System.Text;

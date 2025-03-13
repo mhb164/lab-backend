@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Server.HttpSys;
-using Backend.Config;
-
-namespace Backend.Extensions;
+﻿namespace Laboratory.Backend.Extensions;
 
 public static class WebHostExtensions
 {
@@ -10,7 +7,7 @@ public static class WebHostExtensions
 #pragma warning disable CA1416
         hostBuilder.UseHttpSys(options =>
         {
-            options.Authentication.Schemes = AuthenticationSchemes.None;
+            options.Authentication.Schemes = Microsoft.AspNetCore.Server.HttpSys.AuthenticationSchemes.None;
             options.Authentication.AllowAnonymous = true;
             options.MaxConnections = null;
             options.MaxRequestBodySize = 30000000;

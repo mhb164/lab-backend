@@ -1,8 +1,5 @@
-﻿using Microsoft.Net.Http.Headers;
-using Backend.Auth;
-using Backend.Dto;
+﻿namespace Laboratory.Backend;
 
-namespace Backend;
 public static class HttpContextExtension
 {
     public static readonly string BearerAuthorizationStart = "Bearer ";

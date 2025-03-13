@@ -1,9 +1,4 @@
-﻿using Backend.Config;
-using Backend.Extensions;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-
-namespace Backend.Auth;
+﻿namespace Laboratory.Backend.Auth;
 
 public class AuthMiddleware
 {
@@ -54,7 +49,7 @@ public class AuthMiddleware
         { 
             tokenHandler.ValidateToken(accessToken, _jwt.ValidationParameters, out var validatedToken);
             var jwtSecurityToken = validatedToken as JwtSecurityToken;
-
+            
             if (jwtSecurityToken == null)
                 return default;
 
@@ -65,12 +60,11 @@ public class AuthMiddleware
                 expirationTime: jwtSecurityToken.GetClaimTime(ClaimNames.ExpirationTime));
 
             var auth = new ClientAuth(typeText: jwtSecurityToken.GetClaimValue(ClaimNames.AuthType),
-                username: jwtSecurityToken.GetClaimValue(ClaimNames.AuthUsername),
+                detail: jwtSecurityToken.GetClaimValue(ClaimNames.AuthDetail),
                 time: jwtSecurityToken.GetClaimTime(ClaimNames.AuthTime));
 
             var user = new ClientUser(token: token, auth,
-                username: jwtSecurityToken.GetClaimValue(ClaimNames.Username),
-                fullname: jwtSecurityToken.GetClaimValue(ClaimNames.Fullname),
+                id: jwtSecurityToken.GetClaimGuid(ClaimNames.UserId),
                 firstname: jwtSecurityToken.GetClaimValue(ClaimNames.Firstname),
                 lastname: jwtSecurityToken.GetClaimValue(ClaimNames.Lastname),
                 nickname: jwtSecurityToken.GetClaimValue(ClaimNames.Lastname),

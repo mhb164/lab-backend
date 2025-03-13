@@ -1,4 +1,4 @@
-﻿namespace Backend.Auth;
+﻿namespace Laboratory.Backend.Auth;
 
 public interface IUserContext
 {

@@ -1,7 +1,4 @@
-﻿using System.Net;
-using System.Text.Json;
-
-namespace Backend.Middlewares;
+﻿namespace Laboratory.Backend.Middlewares;
 
 public class ErrorResponse : IResult
 {

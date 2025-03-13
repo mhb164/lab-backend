@@ -1,9 +1,6 @@
-using Backend.Extensions;
-using Backend.Options;
-
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.ConfigureLogger(builder.Configuration);
-Serilog.Log.Information("{ProductName} v{AppInformationalVersion} started.", Aid.ProductName, Aid.AppInformationalVersion);
+Log.Information("{ProductName} v{AppInformationalVersion} started.", Aid.ProductName, Aid.AppInformationalVersion);
 
 var hostingConfig = WebHostingOptions.ToModel(builder.Configuration?.GetSection(WebHostingOptions.ConfigName)?.Get<WebHostingOptions>());
 builder.WebHost.ConfigWebHost(hostingConfig);
@@ -16,5 +13,5 @@ app.Prepare();
 app.MapEndpoints();
 await app.RunAsync();
 
-Serilog.Log.Information("{ProductName} v{AppInformationalVersion} stopped.", Aid.ProductName, Aid.AppInformationalVersion);
-await Serilog.Log.CloseAndFlushAsync();
+Log.Information("{ProductName} v{AppInformationalVersion} stopped.", Aid.ProductName, Aid.AppInformationalVersion);
+await Log.CloseAndFlushAsync();

@@ -1,13 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Backend.Auth;
-using Backend.Dto;
-using Backend.Interfaces;
-using Backend.Middlewares;
-using Backend.Model;
-using System.Text;
-using System.Threading;
-
-namespace Backend.Extensions;
+﻿namespace Laboratory.Backend.Extensions;
 
 public static class EndpointExtensions
 {
@@ -42,7 +33,7 @@ public static class EndpointExtensions
     {
         var clientUser = httpContext?.GetClientUser();
         var contextOverview = new ContextOverview(Aid.ProductName, Aid.AppInformationalVersion,
-            clientAddress: httpContext?.Connection?.RemoteIpAddress?.ToString(),
+            clientIpAddress: httpContext?.Connection?.RemoteIpAddress?.ToString(),
             authenticated: clientUser != null);
 
         return contextOverview;

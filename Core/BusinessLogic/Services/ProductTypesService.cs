@@ -1,16 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
-using Backend.Dto;
-using Backend.Model;
-
-namespace Backend.Services;
+﻿namespace Laboratory.Backend.Services;
 
 public class ProductTypesService : IProductTypesService
 {
     private readonly ILogger? _logger;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IBusinessUnitOfWork _unitOfWork;
     private readonly IProductTypesRepository _repository;
 
-    public ProductTypesService(ILogger<ProductTypesService>? logger, IUnitOfWork unitOfWork, IProductTypesRepository repository)
+    public ProductTypesService(ILogger<ProductTypesService>? logger, IBusinessUnitOfWork unitOfWork, IProductTypesRepository repository)
     {
         _logger = logger;
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));

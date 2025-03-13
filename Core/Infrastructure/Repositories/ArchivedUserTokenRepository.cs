@@ -1,20 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Backend.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Backend.Repositories;
+﻿namespace Laboratory.Backend.Repositories;
 
 public class ArchivedUserTokenRepository : IArchivedUserTokenRepository
 {
     private readonly ILogger? _logger;
-    private readonly BackendDbContext _context;
+    private readonly AuthDbContext _context;
 
-    public ArchivedUserTokenRepository(ILogger<ArchivedUserTokenRepository>? logger, BackendDbContext context)
+    public ArchivedUserTokenRepository(ILogger<ArchivedUserTokenRepository>? logger, AuthDbContext context)
     {
         _logger = logger;
         _context = context ?? throw new ArgumentNullException(nameof(context));

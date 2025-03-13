@@ -1,0 +1,19 @@
+﻿global using Laboratory.Auth;
+global using Laboratory.Backend.Auth;
+global using Laboratory.Backend.Config;
+global using Laboratory.Backend.Dto;
+global using Laboratory.Backend.Extensions;
+global using Laboratory.Backend.Interfaces;
+global using Laboratory.Backend.Middlewares;
+global using Laboratory.Backend.Options;
+global using Laboratory.Backend.Repositories;
+global using Laboratory.Backend.Services;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.Net.Http.Headers;
+global using Serilog;
+global using Serilog.Events;
+global using System.IdentityModel.Tokens.Jwt;
+global using System.Net;
+global using System.Security.Claims;
+global using System.Text.Json;
+

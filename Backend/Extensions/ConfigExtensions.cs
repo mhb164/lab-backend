@@ -1,7 +1,4 @@
-﻿using Serilog;
-using Serilog.Events;
-
-namespace Backend.Extensions;
+﻿namespace Laboratory.Backend.Extensions;
 
 public static class ConfigExtensions
 {
@@ -16,11 +13,11 @@ public static class ConfigExtensions
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Information()
             .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-            .WriteTo.File($"{resolvedLoggingDirectory}\\BackendLogs-.log",
+            .WriteTo.File($"{resolvedLoggingDirectory}\\LabLogs-.log",
                           rollingInterval: RollingInterval.Day,
                           outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}]{Scope} {Message:lj}{NewLine}{Exception}",
                           rollOnFileSizeLimit: true, fileSizeLimitBytes: 10 * 1024 * 1024, shared: true, retainedFileCountLimit: 180)
-            .WriteTo.File($"{resolvedLoggingDirectory}\\BackendErrors-.log",
+            .WriteTo.File($"{resolvedLoggingDirectory}\\LabErrors-.log",
                           restrictedToMinimumLevel: LogEventLevel.Error,
                           rollingInterval: RollingInterval.Day,
                           outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}]{Scope} {Message:lj}{NewLine}{Exception}",

@@ -1,8 +1,8 @@
-﻿namespace Backend.Config;
+﻿namespace Laboratory.Backend.Config;
 
 public class WebHostingConfig
 {
-    public const string DefaultUrlPathPrefix = "backendapi";
+    public const string DefaultUrlPathPrefix = "labapi";
 
     public readonly int Port;
     public readonly int SslPort;

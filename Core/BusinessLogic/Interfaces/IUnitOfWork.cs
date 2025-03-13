@@ -1,4 +1,5 @@
-﻿namespace Backend;
+﻿namespace Laboratory.Backend.Interfaces;
+
 public interface IUnitOfWork : IDisposable
 {
     // Begin a transaction
@@ -10,3 +11,6 @@ public interface IUnitOfWork : IDisposable
     // Rollback the transaction in case of failure
     Task RollbackAsync();
 }
+
+public interface IAuthUnitOfWork : IUnitOfWork { }
+public interface IBusinessUnitOfWork : IUnitOfWork { }

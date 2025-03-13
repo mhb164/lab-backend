@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<AssemblyName>Backend.Infrastructure.Sql</AssemblyName>
+		<AssemblyName>Laboratory.Backend.Infrastructure.Sql</AssemblyName>
 		<AssemblyTitle>$(AssemblyName) $(AssemblyTitleSufix)</AssemblyTitle>
 	</PropertyGroup>
 

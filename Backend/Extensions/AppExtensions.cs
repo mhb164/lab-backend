@@ -1,7 +1,4 @@
-﻿using Backend.Auth;
-using Backend.Middlewares;
-
-namespace Backend.Extensions;
+﻿namespace Laboratory.Backend.Extensions;
 
 public static  class AppExtensions
 {

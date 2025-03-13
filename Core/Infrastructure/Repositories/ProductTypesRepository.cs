@@ -1,15 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Backend.Model;
-
-namespace Backend.Repositories;
+﻿namespace Laboratory.Backend.Repositories;
 
 public class ProductTypesRepository : IProductTypesRepository
 {
     private readonly ILogger? _logger;
-    private readonly BackendDbContext _context;
+    private readonly BusinessDbContext _context;
 
-    public ProductTypesRepository(ILogger<ProductTypesRepository>? logger, BackendDbContext context)
+    public ProductTypesRepository(ILogger<ProductTypesRepository>? logger, BusinessDbContext context)
     {
         _logger = logger;
         _context = context ?? throw new ArgumentNullException(nameof(context));

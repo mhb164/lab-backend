@@ -1,11 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Backend.Auth;
-using Backend.Interfaces;
-using Backend.Options;
-using Backend.Repositories;
-using Backend.Services;
-
-namespace Backend.Extensions;
+﻿namespace Laboratory.Backend.Extensions;
 
 public static class InjectionExtensions
 {
@@ -21,13 +14,14 @@ public static class InjectionExtensions
             options.SerializerOptions.PropertyNameCaseInsensitive = false;
             options.SerializerOptions.PropertyNamingPolicy = null;
             options.SerializerOptions.WriteIndented = true;
+            options.SerializerOptions.IncludeFields = false;
         });
 
 
-        ConfigureDbContext(services, configuration);
+        services.ConfigDbContext(configuration);
         services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<IUserContext, UserContext>();
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IUserContext, UserContext>();       
+
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserTokenRepository, UserTokenRepository>();
@@ -37,31 +31,22 @@ public static class InjectionExtensions
         services.AddScoped<IProductTypesService, ProductTypesService>();
 
         return services;
-    }
-
-    private static void ConfigureDbContext(IServiceCollection services, ConfigurationManager? configuration)
-    {
-        var repositoryConfig = BackendDbOptions.ToModel(configuration?.GetSection(BackendDbOptions.ConfigName)?.Get<BackendDbOptions>());
-
-        if (repositoryConfig.Provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
-            services.AddScoped<BackendDbContext>(provider =>
-            {
-                var logger = provider.GetRequiredService<ILogger<BackendSqlDbContext>>();
-                return new BackendSqlDbContext(logger, repositoryConfig.ConnectionString);
-            });
-    }
+    }   
 
     public static async Task<IServiceProvider> WarmUp(
          this IServiceProvider services, ConfigurationManager? configuration)
     {
         using (var scope = services.CreateScope())
         {
-            var dbContext = scope.ServiceProvider.GetRequiredService<BackendDbContext>();
-            await dbContext.InitialAsync();
+            var authDbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+            await authDbContext.InitialAsync();
+
+            var businessDbContext = scope.ServiceProvider.GetRequiredService<BusinessDbContext>();
+            await businessDbContext.InitialAsync();
 
             var adminDefaultPassword = configuration?.GetSection($"AdminDefaultPassword")?.Value ?? string.Empty;
             var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
-            await authService.EnsureAdminUserExistsAsync(adminDefaultPassword);
+            await authService.EnsureDefaultUsersExistsAsync(adminDefaultPassword);
 
             scope.ServiceProvider.GetService<IProductTypesRepository>();
             scope.ServiceProvider.GetService<IProductTypesService>();

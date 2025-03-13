@@ -1,8 +1,8 @@
-﻿namespace Backend.Auth;
+﻿namespace Laboratory.Backend.Auth;
 
 public static class ApiPermissions
 {
-    public static readonly string Domain_Backend = "lab_backend";
+    public static readonly string Domain_Laboratory = "lab";
 
     public static readonly string Scope_ProductTypes = "product_types";
 
@@ -20,9 +20,9 @@ public static class ApiPermissions
     public static readonly AuthMetadata TokenIsEnough = new();
 
     /// <summary>
-    /// Domain should be match to "lab_backend"
+    /// Domain should be match to "lab"
     /// </summary>
-    public static readonly AuthMetadata DomainSpecific = TokenIsEnough.NewWith(domain: Domain_Backend);
+    public static readonly AuthMetadata DomainSpecific = TokenIsEnough.NewWith(domain: Domain_Laboratory);
 
     public static readonly AuthMetadata ProductTypes = DomainSpecific.NewWith(scope: Scope_ProductTypes, permission: Permission_View);
     public static readonly AuthMetadata ProductTypesAdd = DomainSpecific.NewWith(permission: Permission_Add);

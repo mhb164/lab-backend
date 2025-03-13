@@ -1,17 +1,10 @@
-﻿using Backend.Auth;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Backend.Model;
+﻿namespace Laboratory.Backend.Model;
 
 public class ArchivedUserToken
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
-    public required AuthType Type { get; set; }
+    public required ClientAuthType Type { get; set; }
     public required string Username { get; set; }
     public required DateTime Time { get; set; }
     public required string Description { get; set; }

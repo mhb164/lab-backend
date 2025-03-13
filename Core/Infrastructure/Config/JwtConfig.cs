@@ -1,6 +1,4 @@
-﻿using Microsoft.IdentityModel.Tokens;
-
-namespace Backend.Config;
+﻿namespace Laboratory.Backend.Config;
 
 public class JwtConfig
 {

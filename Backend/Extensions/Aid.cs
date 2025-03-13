@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Backend.Extensions;
+namespace Laboratory.Backend.Extensions;
 
 public static partial class Aid
 {

@@ -1,13 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
+﻿namespace Laboratory.Backend;
 
-namespace Backend;
-
-public class UnitOfWork : IUnitOfWork
+public abstract class UnitOfWork<TContext> where TContext : DbContext, IDisposable
 {
-    private readonly BackendDbContext _context;
-    private IDbContextTransaction _transaction;
+    private readonly TContext _context;
+    private IDbContextTransaction? _transaction;
 
-    public UnitOfWork(BackendDbContext context)
+    public UnitOfWork(TContext  context)
     {
         _context = context;
     }
@@ -21,7 +19,7 @@ public class UnitOfWork : IUnitOfWork
     // Commit the transaction to save changes
     public async Task<int> CommitAsync(CancellationToken cancellationToken)
     {
-        if(_transaction is null)
+        if (_transaction is null)
         {
             var result = await _context.SaveChangesAsync(cancellationToken);
             return result;
@@ -55,5 +53,19 @@ public class UnitOfWork : IUnitOfWork
     {
         _transaction?.Dispose();
         _context.Dispose();
+    }
+}
+
+public sealed class AuthUnitOfWork : UnitOfWork<AuthDbContext>, IAuthUnitOfWork
+{
+    public AuthUnitOfWork(AuthDbContext context) : base(context)
+    {
+    }
+}
+
+public sealed class BusinessUnitOfWork : UnitOfWork<BusinessDbContext>, IBusinessUnitOfWork
+{
+    public BusinessUnitOfWork(BusinessDbContext context) : base(context)
+    {
     }
 }

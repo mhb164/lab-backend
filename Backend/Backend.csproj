@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<AssemblyName>Backend</AssemblyName>
+		<AssemblyName>Laboratory.Backend</AssemblyName>
 		<AssemblyTitle>$(AssemblyName) $(AssemblyTitleSufix)</AssemblyTitle>
 		<PackageTags>A26CA78A-B876-4CD2-B14E-5988D5FC020C</PackageTags>
 		<ApplicationIcon>..\Backend.ico</ApplicationIcon>
@@ -16,8 +16,10 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Core\BusinessLogic\BusinessLogic.csproj" />
 	  <ProjectReference Include="..\Core\Domain\Domain.csproj" />
+	  <ProjectReference Include="..\Core\Infrastructure.Sqlite\Infrastructure.Sqlite.csproj" />
 	  <ProjectReference Include="..\Core\Infrastructure.Sql\Infrastructure.Sql.csproj" />
 	  <ProjectReference Include="..\Core\Infrastructure\Infrastructure.csproj" />
+	  <ProjectReference Include="..\Core\Shared\Shared.csproj" />
 	</ItemGroup>
 
 </Project>

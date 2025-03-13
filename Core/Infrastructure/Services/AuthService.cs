@@ -1,19 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using Backend.Auth;
-using Backend.Config;
-using Backend.Dto;
-using Backend.Interfaces;
-using Backend.Model;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-
-namespace Backend.Services;
+﻿namespace Laboratory.Backend.Services;
 
 public class AuthService : IAuthService
 {
     private readonly ILogger? _logger;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IAuthUnitOfWork _unitOfWork;
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IUserTokenRepository _tokenRepository;
@@ -22,7 +12,7 @@ public class AuthService : IAuthService
     private readonly ClientUser? _clientUser;
 
     public AuthService(ILogger<AuthService>? logger,
-        IUnitOfWork unitOfWork,
+        IAuthUnitOfWork unitOfWork,
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
         IUserTokenRepository tokenRepository,
@@ -40,7 +30,13 @@ public class AuthService : IAuthService
         _clientUser = userContext.User;
     }
 
-    public async Task EnsureAdminUserExistsAsync(string? adminDefaultPassword)
+    public async Task EnsureDefaultUsersExistsAsync(string? adminDefaultPassword)
+    {
+        await EnsureAdminUsersExistsAsync(adminDefaultPassword);
+        await EnsureTestUsersExistsAsync();
+    }
+
+    public async Task EnsureAdminUsersExistsAsync(string? adminDefaultPassword)
     {
         var adminUser = await _userRepository.GetByNameAsync(User.AdminUsername, CancellationToken.None);
         if (adminUser is not null)
@@ -53,16 +49,41 @@ public class AuthService : IAuthService
         {
             Activation = true,
             Username = User.AdminUsername,
-            LocalPassword = adminDefaultPassword,
+            Password = adminDefaultPassword,
             Roles = new List<UserRole>() { UserRole.Admin },
-            ChangeLocalPasswordRequired = true,
-            LdapUsernames = new List<UserLdapAccount>(),
+            ChangePasswordRequired = true,
             Firstname = "Laboratory",
             Lastname = "Administrator",
             Nickname = User.AdminUsername,
+            LdapAccounts = new List<UserLdapAccount>(),
+            Emails = new List<UserEmail>(),
         };
 
         _ = await _userRepository.AddAsync(adminUser, CancellationToken.None);
+        await _unitOfWork.CommitAsync(CancellationToken.None);
+    }
+
+    public async Task EnsureTestUsersExistsAsync()
+    {
+        var testUser = await _userRepository.GetByNameAsync(User.TestUsername, CancellationToken.None);
+        if (testUser is not null)
+            return;
+
+        testUser = new User()
+        {
+            Activation = true,
+            Username = User.TestUsername,
+            Password = _passwordHasher.Hash(User.TestPassword),
+            Roles = new List<UserRole>() { UserRole.View },
+            ChangePasswordRequired = false,
+            Firstname = "Laboratory",
+            Lastname = "Tester",
+            Nickname = User.TestUsername,
+            LdapAccounts = new List<UserLdapAccount>(),
+            Emails = new List<UserEmail>(),
+        };
+
+        _ = await _userRepository.AddAsync(testUser, CancellationToken.None);
         await _unitOfWork.CommitAsync(CancellationToken.None);
     }
 
@@ -95,7 +116,7 @@ public class AuthService : IAuthService
         var serviceResult = new ServiceResult<TokenDto>();
 
         var validation = await ValidateCredentials(request, cancellationToken);
-        var authType = AuthType.Locally;
+        var authType = ClientAuthType.Locally;
         if (validation.Value is null || validation.IsFailed)
             return serviceResult.Unauthorized($"Validate credentials failed ({validation.Message})");
         var user = validation.Value!;
@@ -126,18 +147,18 @@ public class AuthService : IAuthService
         if (_clientUser is null)
             return ServiceResult.Unauthorized("User not valid!");
 
-        var user = await _userRepository.GetByNameAsync(_clientUser.Username, cancellationToken);
+        var user = await _userRepository.GetByIdAsync(_clientUser.Id, cancellationToken);
         if (user is null)
             return ServiceResult.Unauthorized("User not found!");
 
         if (!user.Activation)
             return ServiceResult.Unauthorized("User not is not active!");
 
-        if (!_passwordHasher.Verify(user.LocalPassword, request.CurrentPassword))
+        if (!_passwordHasher.Verify(user.Password, request.CurrentPassword))
             return ServiceResult.Unauthorized("Password is not valid");
 
-        user.LocalPassword = _passwordHasher.Hash(request.NewPassword);
-        user.ChangeLocalPasswordRequired = false;
+        user.Password = _passwordHasher.Hash(request.NewPassword);
+        user.ChangePasswordRequired = false;
         _ = await _userRepository.UpdateAsync(user, CancellationToken.None);
         await _unitOfWork.CommitAsync(CancellationToken.None);
 
@@ -198,10 +219,9 @@ public class AuthService : IAuthService
         {
             new Claim(ClaimNames.TokenId, jti),
             new Claim(ClaimNames.AuthType, token.Type.ToString().ToLower()),
-            new Claim(ClaimNames.AuthUsername, token.Username),
+            new Claim(ClaimNames.AuthDetail, token.Username),
             new Claim(ClaimNames.AuthTime, new DateTimeOffset(token.Time).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
-            new Claim(ClaimNames.Username, user.Username),
-            new Claim(ClaimNames.Fullname, user.Fullname),
+            new Claim(ClaimNames.UserId, user.Id.ToString("N")),
             new Claim(ClaimNames.Firstname, user.Firstname),
             new Claim(ClaimNames.Lastname, user.Lastname),
             new Claim(ClaimNames.Nickname, user.Nickname),
@@ -211,7 +231,7 @@ public class AuthService : IAuthService
         if (user.LocallyAvailable)
             claims.Add(new Claim(ClaimNames.LocallyAvailable, "true"));
 
-        if (user.ChangeLocalPasswordRequired)
+        if (user.ChangePasswordRequired)
             claims.Add(new Claim(ClaimNames.ChangeLocalPasswordRequired, "true"));
         else
             claims.AddRange(ToClaims(permissions));
@@ -253,7 +273,7 @@ public class AuthService : IAuthService
         if (!user.Activation)
             return serviceResult.Unauthorized("User not is not active!");
 
-        if (!_passwordHasher.Verify(user.LocalPassword, request.Password))
+        if (!_passwordHasher.Verify(user.Password, request.Password))
             return serviceResult.Unauthorized("Password is not valid");
 
         await Task.CompletedTask;
@@ -272,17 +292,17 @@ public class AuthService : IAuthService
         var result = new Dictionary<UserRole, List<UserPermit>>();
         result.Add(UserRole.SuperAdmin, new List<UserPermit>()
         {
-            new UserPermit("lab_backend", "product_types", new List<string>(){"add","edit","remove" }),
-            new UserPermit("lab_backend", "user_management", new List<string>(){"change_users_permits" }),
+            new UserPermit("lab", "product_types", new List<string>(){"add","edit","remove" }),
+            new UserPermit("lab", "user_management", new List<string>(){"change_users_permits" }),
         });
         result.Add(UserRole.Admin, new List<UserPermit>()
         {
-            new UserPermit("lab_backend", "product_types", new List<string>(){"add","edit","remove" }),
-            new UserPermit("lab_backend", "user_management", new List<string>()),
+            new UserPermit("lab", "product_types", new List<string>(){"add","edit","remove" }),
+            new UserPermit("lab", "user_management", new List<string>()),
         });
         result.Add(UserRole.Operator, new List<UserPermit>()
         {
-            new UserPermit("lab_backend", "product_types", new List<string>()),
+            new UserPermit("lab", "product_types", new List<string>()),
         });
         result.Add(UserRole.View, new List<UserPermit>()
         {

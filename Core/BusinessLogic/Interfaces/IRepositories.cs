@@ -1,6 +1,5 @@
-﻿using Backend.Model;
+﻿namespace Laboratory.Backend.Interfaces;
 
-namespace Backend;
 public interface IRepository<TEntity, TId>
 {
     Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken);

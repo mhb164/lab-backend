@@ -1,4 +1,4 @@
-﻿namespace Backend.Dto;
+﻿namespace Laboratory.Backend.Dto;
 
 public class ProductTypeUpdateDto
 {
