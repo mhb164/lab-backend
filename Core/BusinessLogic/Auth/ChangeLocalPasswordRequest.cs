@@ -1,4 +1,4 @@
-﻿namespace Laboratory.Backend.Dto;
+﻿namespace Laboratory.Backend.Auth;
 
 public class ChangeLocalPasswordRequest
 {

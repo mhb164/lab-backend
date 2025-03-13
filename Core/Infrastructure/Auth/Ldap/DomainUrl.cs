@@ -1,4 +1,4 @@
-﻿namespace Laboratory.Backend.Ldap;
+﻿namespace Laboratory.Backend.Auth.Ldap;
 
 public class DomainUrl
 {

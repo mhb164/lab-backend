@@ -1,4 +1,4 @@
-﻿namespace Laboratory.Backend.Interfaces;
+﻿namespace Laboratory.Backend.Auth.Interfaces;
 
 public interface IAuthService
 {

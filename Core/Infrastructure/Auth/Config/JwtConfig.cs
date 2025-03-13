@@ -1,4 +1,4 @@
-﻿namespace Laboratory.Backend.Config;
+﻿namespace Laboratory.Backend.Auth.Config;
 
 public class JwtConfig
 {
@@ -14,7 +14,7 @@ public class JwtConfig
         ArgumentNullException.ThrowIfNull(lifetimeInMinutes);
 
         Issuer = issuer.Trim();
-        var jwtSecretBytes = System.Text.Encoding.UTF8.GetBytes(secret.Trim());
+        var jwtSecretBytes = Encoding.UTF8.GetBytes(secret.Trim());
         SecretKey = new SymmetricSecurityKey(jwtSecretBytes);
         LifetimeInMinutes = lifetimeInMinutes.Value;
 

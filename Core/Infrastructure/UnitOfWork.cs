@@ -55,17 +55,3 @@ public abstract class UnitOfWork<TContext> where TContext : DbContext, IDisposab
         _context.Dispose();
     }
 }
-
-public sealed class AuthUnitOfWork : UnitOfWork<AuthDbContext>, IAuthUnitOfWork
-{
-    public AuthUnitOfWork(AuthDbContext context) : base(context)
-    {
-    }
-}
-
-public sealed class BusinessUnitOfWork : UnitOfWork<BusinessDbContext>, IBusinessUnitOfWork
-{
-    public BusinessUnitOfWork(BusinessDbContext context) : base(context)
-    {
-    }
-}

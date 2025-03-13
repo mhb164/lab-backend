@@ -1,3 +1,3 @@
-﻿namespace Laboratory.Backend.Dto;
+﻿namespace Laboratory.Backend.Auth;
 
 public record SignInRequest(string Username, string Password);

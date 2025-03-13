@@ -1,13 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Laboratory.Backend.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Laboratory.Backend.Repositories;
+﻿namespace Laboratory.Backend.Auth.Repositories;
 
 public class UserRepository : IUserRepository
 {

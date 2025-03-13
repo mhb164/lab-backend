@@ -1,4 +1,5 @@
-﻿namespace Laboratory.Backend.Extensions;
+﻿
+namespace Laboratory.Backend.Extensions;
 
 public static class EndpointExtensions
 {

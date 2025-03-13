@@ -1,4 +1,4 @@
-﻿namespace Laboratory.Backend.Model;
+﻿namespace Laboratory.Backend.Auth.Model;
 
 public enum UserRole
 {

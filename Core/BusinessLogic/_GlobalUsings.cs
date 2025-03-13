@@ -3,3 +3,4 @@ global using Laboratory.Backend.Dto;
 global using Laboratory.Backend.Model;
 global using Laboratory.Backend.Interfaces;
 global using System;
+global using Laboratory.Backend.Auth.Model;

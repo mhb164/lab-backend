@@ -1,4 +1,4 @@
-﻿namespace Laboratory.Backend.Options;
+﻿namespace Laboratory.Backend.Auth;
 
 public class JwtOptions
 {

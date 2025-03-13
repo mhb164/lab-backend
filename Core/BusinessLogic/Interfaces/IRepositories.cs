@@ -9,7 +9,7 @@ public interface IRepository<TEntity, TId>
 }
 
 
-public interface IRepositoryWithtDelete<TEntity, TId>: IRepository<TEntity, TId>
+public interface IRepositoryWithDelete<TEntity, TId> : IRepository<TEntity, TId>
 {
     Task DeleteAsync(TEntity entity, CancellationToken cancellationToken);
 }
@@ -20,12 +20,3 @@ public interface IProductTypesRepository : IRepository<ProductType, int>
     Task<ProductType?> GetByIdAsync(int id, bool justActive, CancellationToken cancellationToken);
     Task<ProductType?> GetByNameAsync(string name, CancellationToken cancellationToken);
 }
-
-public interface IUserRepository : IRepository<User, Guid>
-{
-    Task<User?> GetByNameAsync(string name, CancellationToken cancellationToken);
-}
-
-public interface IUserTokenRepository : IRepositoryWithtDelete<UserToken, Guid> { }
-
-public interface IArchivedUserTokenRepository : IRepository<ArchivedUserToken, Guid> { }

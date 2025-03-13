@@ -1,4 +1,4 @@
-﻿namespace Laboratory.Backend.Repositories;
+﻿namespace Laboratory.Backend.Auth.Repositories;
 
 public class UserTokenRepository : IUserTokenRepository
 {

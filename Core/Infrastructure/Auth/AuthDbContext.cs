@@ -1,4 +1,4 @@
-﻿namespace Laboratory.Backend;
+﻿namespace Laboratory.Backend.Auth;
 
 public abstract class AuthDbContext : DbContext
 {

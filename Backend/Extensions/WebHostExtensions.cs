@@ -4,6 +4,12 @@ public static class WebHostExtensions
 {
     public static void ConfigWebHost(this IWebHostBuilder hostBuilder, WebHostingConfig hostingConfig)
     {
+        if (!hostingConfig.Enabled)
+        {
+            Log.Information("WebHost(HttpSys) is disable!");
+            return;
+        }
+
 #pragma warning disable CA1416
         hostBuilder.UseHttpSys(options =>
         {

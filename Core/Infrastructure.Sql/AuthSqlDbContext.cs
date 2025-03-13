@@ -1,4 +1,6 @@
-﻿namespace Laboratory.Backend;
+﻿using Laboratory.Backend.Auth;
+
+namespace Laboratory.Backend;
 
 public class AuthSqlDbContext : AuthDbContext
 {

@@ -1,7 +1,8 @@
 ﻿global using Laboratory.Auth;
 global using Laboratory.Backend.Auth;
-global using Laboratory.Backend.Config;
-global using Laboratory.Backend.Dto;
+global using Laboratory.Backend.Auth.Config;
+global using Laboratory.Backend.Auth.Interfaces;
+global using Laboratory.Backend.Auth.Model;
 global using Laboratory.Backend.Interfaces;
 global using Laboratory.Backend.Model;
 global using Microsoft.EntityFrameworkCore;

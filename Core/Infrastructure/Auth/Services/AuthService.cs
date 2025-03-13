@@ -1,4 +1,4 @@
-﻿namespace Laboratory.Backend.Services;
+﻿namespace Laboratory.Backend.Auth.Services;
 
 public class AuthService : IAuthService
 {

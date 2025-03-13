@@ -1,4 +1,4 @@
-﻿namespace Laboratory.Backend.Extensions;
+﻿namespace Laboratory.Backend.Auth.Extensions;
 
 public static class JwtTokenExtensions
 {
