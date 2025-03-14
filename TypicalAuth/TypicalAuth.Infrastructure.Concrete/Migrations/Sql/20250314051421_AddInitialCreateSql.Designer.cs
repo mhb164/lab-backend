@@ -12,8 +12,8 @@ using TypicalAuth;
 namespace TypicalAuth.Migrations.Sql
 {
     [DbContext(typeof(AuthSqlDbContext))]
-    [Migration("20250313144050_AddInitialCreate")]
-    partial class AddInitialCreate
+    [Migration("20250314051421_AddInitialCreateSql")]
+    partial class AddInitialCreateSql
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

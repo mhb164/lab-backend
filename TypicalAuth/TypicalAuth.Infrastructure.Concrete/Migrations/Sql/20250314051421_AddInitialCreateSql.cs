@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TypicalAuth.Migrations.Sql
 {
     /// <inheritdoc />
-    public partial class AddInitialCreate : Migration
+    public partial class AddInitialCreateSql : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

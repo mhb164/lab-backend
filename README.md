@@ -1,12 +1,11 @@
 # Backend Laboratory
 
+## Ef migrations Business - sample
+cd core/Infrastructure.Concrete
+dotnet ef migrations add AddInitialCreateSql --context BusinessSqlDbContext -o Migrations/Sql
+dotnet ef migrations add AddInitialCreateSqlite --context BusinessSqliteDbContext -o Migrations/Sqlite
 
-# Ef migrations - sample
-
-cd core/Infrastructure.Sqlite
-dotnet ef migrations add AddInitialCreate --context AuthSqliteDbContext -o Migrations/AuthDb
-dotnet ef migrations add AddInitialCreate --context BusinessSqliteDbContext -o Migrations/BusinessDb
-
-cd core/Infrastructure.Sql
-dotnet ef migrations add AddInitialCreate --context AuthSqlDbContext -o Migrations/AuthDb
-dotnet ef migrations add AddInitialCreate --context BusinessSqlDbContext -o Migrations/BusinessDb
+## Ef migrations TypicalAuth - sample
+cd TypicalAuth/TypicalAuth.Infrastructure.Concrete
+dotnet ef migrations add AddInitialCreateSql --context AuthSqlDbContext -o Migrations/Sql
+dotnet ef migrations add AddInitialCreateSqlite --context AuthSqliteDbContext -o Migrations/Sqlite

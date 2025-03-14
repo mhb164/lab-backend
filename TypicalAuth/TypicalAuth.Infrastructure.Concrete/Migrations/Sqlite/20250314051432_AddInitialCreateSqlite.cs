@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TypicalAuth.Migrations.Sqlite
 {
     /// <inheritdoc />
-    public partial class AddInitialCreate : Migration
+    public partial class AddInitialCreateSqlite : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

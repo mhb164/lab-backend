@@ -11,8 +11,8 @@ using TypicalAuth;
 namespace TypicalAuth.Migrations.Sqlite
 {
     [DbContext(typeof(AuthSqliteDbContext))]
-    [Migration("20250313144104_AddInitialCreate")]
-    partial class AddInitialCreate
+    [Migration("20250314051432_AddInitialCreateSqlite")]
+    partial class AddInitialCreateSqlite
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
