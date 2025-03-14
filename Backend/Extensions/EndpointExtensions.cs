@@ -1,20 +1,7 @@
-﻿
-namespace Laboratory.Backend.Extensions;
+﻿namespace Laboratory.Backend.Extensions;
 
 public static class EndpointExtensions
 {
-    private static IResult Map<T>(ServiceResult<T> result) => result.Code switch
-    {
-        ServiceResultCode.Success => Results.Ok(result.Value),
-        _ => ErrorResponse.Generate(result),
-    };
-
-    private static IResult Map(ServiceResult result) => result.Code switch
-    {
-        ServiceResultCode.Success => Results.Ok(),
-        _ => ErrorResponse.Generate(result),
-    };
-
     public static IEndpointRouteBuilder MapEndpoints(this IEndpointRouteBuilder endpoints)
         => endpoints.MapGeneralEndpoints()
                     .MapAuthEndpoints()
@@ -25,7 +12,7 @@ public static class EndpointExtensions
         endpoints.MapGet("/info", (HttpContext httpContext) =>
         {
             return Results.Ok(CreateContextOverview(httpContext));
-        }).WithMetadata(ApiPermissions.Public);
+        }).WithMetadata(AuthPermissions.Public);
 
         return endpoints;
     }
@@ -40,52 +27,27 @@ public static class EndpointExtensions
         return contextOverview;
     }
 
-    public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder endpoints)
-    {
-        endpoints.MapPost("/sign-in",
-            async ([FromBody] SignInRequest request, IAuthService service, CancellationToken cancellationToken)
-                => Map(await service.SignInAsync(request, cancellationToken)))
-            .WithMetadata(ApiPermissions.Public);
-
-        endpoints.MapPost("/change-local-password",
-           async ([FromBody] ChangeLocalPasswordRequest request, IAuthService service, CancellationToken cancellationToken)
-               => Map(await service.ChangeLocalPasswordRequestAsync(request, cancellationToken)))
-           .WithMetadata(ApiPermissions.TokenIsEnough);
-
-        endpoints.MapPost("/refresh-token",
-            async (HttpContext httpContext, IAuthService service, CancellationToken cancellationToken)
-                => Map(await service.RefreshTokenAsync(httpContext.GetRefreshToken(), cancellationToken)))
-            .WithMetadata(ApiPermissions.Public);
-
-        endpoints.MapPost("/sign-out",
-            async (IAuthService service, CancellationToken cancellationToken)
-                => Map(await service.SignOutAsync(cancellationToken)))
-            .WithMetadata(ApiPermissions.TokenIsEnough);
-
-        return endpoints;
-    }
-
     public static IEndpointRouteBuilder MapProductTypesEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet("/ProductTypes",
             async (IProductTypesService service, CancellationToken cancellationToken)
-                => Map(await service.GetAllAsync(cancellationToken)))
-            .WithMetadata(ApiPermissions.ProductTypes);
+                => (await service.GetAllAsync(cancellationToken)).Map())
+            .WithMetadata(AuthPermissions.ProductTypes);
 
         endpoints.MapGet("/ProductTypes/{id}",
             async (IProductTypesService service, int id, CancellationToken cancellationToken)
-                => Map(await service.GetByIdAsync(id, cancellationToken)))
-            .WithMetadata(ApiPermissions.ProductTypes);
+                => (await service.GetByIdAsync(id, cancellationToken)).Map())
+            .WithMetadata(AuthPermissions.ProductTypes);
 
         endpoints.MapPost("/ProductTypes",
             async (IProductTypesService service, [FromBody] ProductTypeDto @new, CancellationToken cancellationToken)
-                => Map(await service.AddAsync(@new, cancellationToken)))
-            .WithMetadata(ApiPermissions.ProductTypesAdd);
+                => (await service.AddAsync(@new, cancellationToken)).Map())
+            .WithMetadata(AuthPermissions.ProductTypesAdd);
 
         endpoints.MapPut("/ProductTypes/{id}",
             async (IProductTypesService service, int id, [FromBody] ProductTypeUpdateDto updated, CancellationToken cancellationToken)
-                => Map(await service.UpdateAsync(id, updated, cancellationToken)))
-            .WithMetadata(ApiPermissions.ProductTypesEdit);
+                => (await service.UpdateAsync(id, updated, cancellationToken)).Map())
+            .WithMetadata(AuthPermissions.ProductTypesEdit);
 
         return endpoints;
     }

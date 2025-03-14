@@ -1,2 +1,1 @@
-﻿global using Laboratory.Auth;
-global using Laboratory.Backend.Model;
+﻿global using Shared;

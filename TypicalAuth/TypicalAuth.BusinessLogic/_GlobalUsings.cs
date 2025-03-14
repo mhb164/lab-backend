@@ -1,0 +1,13 @@
+﻿global using Microsoft.Extensions.Logging;
+global using System;
+global using System.Text;
+global using Shared;
+global using Shared.Auth;
+global using TypicalAuth.Dto;
+global using TypicalAuth.Model;
+global using TypicalAuth.Interfaces;
+global using System.Security.Cryptography;
+global using System.IdentityModel.Tokens.Jwt;
+global using Microsoft.IdentityModel.Tokens;
+global using System.Security.Claims;
+global using System.Net;

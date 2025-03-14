@@ -19,7 +19,9 @@
 	  <ProjectReference Include="..\Core\Infrastructure.Sqlite\Infrastructure.Sqlite.csproj" />
 	  <ProjectReference Include="..\Core\Infrastructure.Sql\Infrastructure.Sql.csproj" />
 	  <ProjectReference Include="..\Core\Infrastructure\Infrastructure.csproj" />
-	  <ProjectReference Include="..\Core\Shared\Shared.csproj" />
+	  <ProjectReference Include="..\Shared.Backend\Shared.Backend.csproj" />
+	  <ProjectReference Include="..\Shared\Shared.csproj" />
+	  <ProjectReference Include="..\TypicalAuth\TypicalAuth\TypicalAuth.csproj" />
 	</ItemGroup>
 
 </Project>

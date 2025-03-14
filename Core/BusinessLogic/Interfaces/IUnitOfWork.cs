@@ -12,5 +12,4 @@ public interface IUnitOfWork : IDisposable
     Task RollbackAsync();
 }
 
-public interface IAuthUnitOfWork : IUnitOfWork { }
 public interface IBusinessUnitOfWork : IUnitOfWork { }

@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<AssemblyName>TypicalAuth</AssemblyName>
+		<AssemblyTitle>$(AssemblyName) $(AssemblyTitleSufix)</AssemblyTitle>
+		<RootNamespace>TypicalAuth</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.3.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.2" />
+		<PackageReference Include="System.DirectoryServices.Protocols" Version="9.0.2" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.5.0" />	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Shared.Backend\Shared.Backend.csproj" />
+	  <ProjectReference Include="..\..\Shared\Shared.csproj" />
+	  <ProjectReference Include="..\TypicalAuth.BusinessLogic\TypicalAuth.BusinessLogic.csproj" />
+	  <ProjectReference Include="..\TypicalAuth.Infrastructure.Concrete\TypicalAuth.Infrastructure.Concrete.csproj" />
+	  <ProjectReference Include="..\TypicalAuth.Infrastructure\TypicalAuth.Infrastructure.csproj" />
+	</ItemGroup>
+
+</Project>
