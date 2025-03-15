@@ -28,6 +28,8 @@ public class ClientToken
         Id = id!;
         if (!guid.HasValue && Guid.TryParse(Id, out var parsedId))
             GUID = parsedId;
+        else
+            GUID = guid;
 
         Audience = audience!;
         Issuer = issuer!;

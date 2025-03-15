@@ -16,7 +16,7 @@ public static class InjectionExtensions
     }
 
     public static async Task<IServiceProvider> WarmUp(
-         this IServiceProvider services, ILogger? logger, ConfigurationManager? configuration)
+         this IServiceProvider services, ILogger? logger)
     {
         await services.WarmUpTypicalAuth(logger);
 

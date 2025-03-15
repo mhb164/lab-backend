@@ -10,7 +10,7 @@ try
     builder.Services.ProvideServices(logger, builder.Configuration);
 
     var app = builder.Build();
-    await app.Services.WarmUp(logger, builder.Configuration);
+    await app.Services.WarmUp(logger);
     app.PrepareDefaults(logger);
     app.UseMiddleware<AuthMiddleware>();
     app.MapEndpoints();
