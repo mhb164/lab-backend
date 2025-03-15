@@ -1,14 +1,15 @@
-﻿
-namespace TypicalAuth;
+﻿namespace TypicalAuth;
 
 public class AuthMiddleware
 {
+    private readonly AuthConfig _config;
     private readonly JwtConfig _jwt;
     private readonly RequestDelegate _next;
 
-    public AuthMiddleware(RequestDelegate next, JwtConfig jwtConfig)
+    public AuthMiddleware(RequestDelegate next, AuthConfig config, JwtConfig jwtConfig)
     {
-        _jwt = jwtConfig;
+        _config = config ?? throw new ArgumentNullException(nameof(config));
+        _jwt = jwtConfig ?? throw new ArgumentNullException(nameof(jwtConfig));
         _next = next;
     }
 
@@ -47,14 +48,17 @@ public class AuthMiddleware
 
         var tokenHandler = new JwtSecurityTokenHandler();
         try
-        { 
+        {
             tokenHandler.ValidateToken(accessToken, _jwt.ValidationParameters, out var validatedToken);
             var jwtSecurityToken = validatedToken as JwtSecurityToken;
-            
+
             if (jwtSecurityToken == null)
                 return default;
 
-            var token = new ClientToken(id: jwtSecurityToken.GetClaimGuid(ClaimNames.TokenId),
+            var tokenId = jwtSecurityToken.GetClaimValue(ClaimNames.TokenId);
+            var jwtValues = _config.FromJWT(tokenId, jwtSecurityToken.GetClaimValue(ClaimNames.UserId));
+
+            var token = new ClientToken(id: tokenId, guid: jwtValues.TokenId,
                 audience: jwtSecurityToken.Audiences.FirstOrDefault(),
                 issuer: jwtSecurityToken.Issuer,
                 issuedAt: jwtSecurityToken.IssuedAt,
@@ -65,7 +69,7 @@ public class AuthMiddleware
                 time: jwtSecurityToken.GetClaimTime(ClaimNames.AuthTime));
 
             var user = new ClientUser(token: token, auth,
-                id: jwtSecurityToken.GetClaimGuid(ClaimNames.UserId),
+                id: jwtValues.UserId,
                 firstname: jwtSecurityToken.GetClaimValue(ClaimNames.Firstname),
                 lastname: jwtSecurityToken.GetClaimValue(ClaimNames.Lastname),
                 nickname: jwtSecurityToken.GetClaimValue(ClaimNames.Lastname),

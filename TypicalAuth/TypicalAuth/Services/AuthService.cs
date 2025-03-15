@@ -3,6 +3,7 @@
 public class AuthService : IAuthService
 {
     private readonly ILogger? _logger;
+    private readonly AuthConfig _config;
     private readonly IAuthUnitOfWork _unitOfWork;
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
@@ -11,7 +12,7 @@ public class AuthService : IAuthService
     private readonly JwtConfig _jwt;
     private readonly ClientUser? _clientUser;
 
-    public AuthService(ILogger<AuthService>? logger,
+    public AuthService(ILogger<AuthService>? logger, AuthConfig config,
         IAuthUnitOfWork unitOfWork,
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
@@ -21,6 +22,7 @@ public class AuthService : IAuthService
         IUserContext userContext)
     {
         _logger = logger;
+        _config = config ?? throw new ArgumentNullException(nameof(config));
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
@@ -30,61 +32,49 @@ public class AuthService : IAuthService
         _clientUser = userContext.User;
     }
 
-    public async Task EnsureDefaultUsersExistsAsync(string? adminDefaultPassword)
+    public async Task EnsureDefaultUsersExistsAsync()
     {
-        await EnsureAdminUsersExistsAsync(adminDefaultPassword);
-        await EnsureTestUsersExistsAsync();
+        foreach (var defaultUser in _config.DefaultUsers)
+        {
+            await EnsureExistsAsync(defaultUser);
+        }
     }
 
-    public async Task EnsureAdminUsersExistsAsync(string? adminDefaultPassword)
+    private async Task EnsureExistsAsync(AuthConfig.DefaultUser defaultUser)
     {
-        var adminUser = await _userRepository.GetByNameAsync(User.AdminUsername, CancellationToken.None);
-        if (adminUser is not null)
+        var user = await _userRepository.GetByNameAsync(defaultUser.Username, CancellationToken.None);
+        if (user is not null)
+        {
+            _logger?.LogInformation("{Username}({ActivateStatus}) user already exists.", defaultUser.Username,
+                (user.Activation ? "Active" : "Inctive"));
             return;
+        }
 
-        if (string.IsNullOrWhiteSpace(adminDefaultPassword))
-            throw new InvalidOperationException("Admin default password required!");
+        if (string.IsNullOrWhiteSpace(defaultUser.DefaultPassword))
+            throw new InvalidOperationException($"'{defaultUser.Username}' user default password required!");
 
-        adminUser = new User()
+        var password = defaultUser.PasswordAlreadyHashed
+            ? defaultUser.DefaultPassword
+            : _passwordHasher.Hash(defaultUser.DefaultPassword);
+
+        user = new User()
         {
             Activation = true,
-            Username = User.AdminUsername,
-            Password = adminDefaultPassword,
-            Roles = new List<UserRole>() { UserRole.Admin },
-            ChangePasswordRequired = true,
-            Firstname = "",
-            Lastname = "Administrator",
-            Nickname = User.AdminUsername,
+            Username = defaultUser.Username,
+            Password = password,
+            ChangePasswordRequired = defaultUser.ForceToChangePassword,
+            Roles = defaultUser.Roles.ToList(),
+            Firstname = defaultUser.Firstname,
+            Lastname = defaultUser.Lastname,
+            Nickname = defaultUser.Nickname,
             LdapAccounts = new List<UserLdapAccount>(),
             Emails = new List<UserEmail>(),
         };
 
-        _ = await _userRepository.AddAsync(adminUser, CancellationToken.None);
+        _ = await _userRepository.AddAsync(user, CancellationToken.None);
         await _unitOfWork.CommitAsync(CancellationToken.None);
-    }
 
-    public async Task EnsureTestUsersExistsAsync()
-    {
-        var testUser = await _userRepository.GetByNameAsync(User.TestUsername, CancellationToken.None);
-        if (testUser is not null)
-            return;
-
-        testUser = new User()
-        {
-            Activation = true,
-            Username = User.TestUsername,
-            Password = _passwordHasher.Hash(User.TestPassword),
-            Roles = new List<UserRole>() { UserRole.View },
-            ChangePasswordRequired = false,
-            Firstname = "",
-            Lastname = "Tester",
-            Nickname = User.TestUsername,
-            LdapAccounts = new List<UserLdapAccount>(),
-            Emails = new List<UserEmail>(),
-        };
-
-        _ = await _userRepository.AddAsync(testUser, CancellationToken.None);
-        await _unitOfWork.CommitAsync(CancellationToken.None);
+        _logger?.LogInformation("{Username} user added.", defaultUser.Username);
     }
 
     private async Task<UserToken> AddTokenAsync(UserToken token)
@@ -111,9 +101,12 @@ public class AuthService : IAuthService
         return ServiceResult.Success();
     }
 
-    public async Task<ServiceResult<TokenDto>> SignInAsync(SignInRequest request, CancellationToken cancellationToken)
+    public async Task<ServiceResult<Token>> SignInAsync(SignInRequest request, CancellationToken cancellationToken)
     {
-        var serviceResult = new ServiceResult<TokenDto>();
+        var serviceResult = new ServiceResult<Token>();
+        var validationResult = request.Validate();
+        if(validationResult.IsFailed)
+            serviceResult.BadRequest(validationResult.Message!);
 
         var validation = await ValidateCredentials(request, cancellationToken);
         var authType = ClientAuthType.Locally;
@@ -126,7 +119,7 @@ public class AuthService : IAuthService
         {
             Id = tokenId,
             Type = authType,
-            Username = request.Username,
+            Username = request.Username!,
             Time = DateTime.UtcNow,
             UserId = user.Id,
             Description = "",//Extra info
@@ -134,16 +127,17 @@ public class AuthService : IAuthService
             RefereshedAt = DateTime.UtcNow,
         };
 
-        var token = await AddTokenAsync(newToken);
-        return serviceResult.Success(new TokenDto()
-        {
-            AccessToken = GenerateAccessToken(token, user),
-            RefreshToken = token.RefreshToken,
-        });
+        var userToken = await AddTokenAsync(newToken);
+        var token = new Token(GenerateAccessToken(userToken, user), userToken.RefreshToken);
+        return serviceResult.Success(token);
     }
 
     public async Task<ServiceResult> ChangeLocalPasswordRequestAsync(ChangeLocalPasswordRequest request, CancellationToken cancellationToken)
     {
+        var validationResult = request.Validate();
+        if (validationResult.IsFailed)
+            return validationResult;
+
         if (_clientUser is null)
             return ServiceResult.Unauthorized("User not valid!");
 
@@ -165,9 +159,9 @@ public class AuthService : IAuthService
         return ServiceResult.Success();
     }
 
-    public async Task<ServiceResult<TokenDto>> RefreshTokenAsync(string? refreshToken, CancellationToken cancellationToken)
+    public async Task<ServiceResult<Token>> RefreshTokenAsync(string? refreshToken, CancellationToken cancellationToken)
     {
-        var serviceResult = new ServiceResult<TokenDto>();
+        var serviceResult = new ServiceResult<Token>();
         if (string.IsNullOrWhiteSpace(refreshToken))
             return serviceResult.Unauthorized("Wrong request!");
 
@@ -192,36 +186,30 @@ public class AuthService : IAuthService
         await _tokenRepository.UpdateAsync(token, CancellationToken.None);
         await _unitOfWork.CommitAsync(CancellationToken.None);
 
-        return serviceResult.Success(new TokenDto()
-        {
-            AccessToken = accessToken,
-            RefreshToken = token.RefreshToken,
-        });
+        return serviceResult.Success(new Token(accessToken, token.RefreshToken));
     }
 
     public async Task<ServiceResult> SignOutAsync(CancellationToken cancellationToken)
     {
-        if (_clientUser is null)
+        if (_clientUser is null || _clientUser.Token?.GUID is null)
             return ServiceResult.Unauthorized("Already signed out!");
 
-        return await RemoveTokenAsync(_clientUser.Token.Id, "sign_out", cancellationToken);
+        return await RemoveTokenAsync(_clientUser.Token.GUID.Value, "sign_out", cancellationToken);
     }
 
     public string GenerateAccessToken(UserToken token, User user)
     {
-        var jti = token.Id.ToString("N");
-
+        var jwtValues = _config.ToJWT(token.Id, user.Id);
         var permissions = GetPermissions(user.Roles);
-
         var now = DateTime.UtcNow;
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimNames.TokenId, jti),
+            new Claim(ClaimNames.TokenId, jwtValues.TokenId),
             new Claim(ClaimNames.AuthType, token.Type.ToString().ToLower()),
             new Claim(ClaimNames.AuthDetail, token.Username),
             new Claim(ClaimNames.AuthTime, new DateTimeOffset(token.Time).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
-            new Claim(ClaimNames.UserId, user.Id.ToString("N")),
+            new Claim(ClaimNames.UserId, jwtValues.UserId),
             new Claim(ClaimNames.Firstname, user.Firstname),
             new Claim(ClaimNames.Lastname, user.Lastname),
             new Claim(ClaimNames.Nickname, user.Nickname),
@@ -236,7 +224,7 @@ public class AuthService : IAuthService
         else
             claims.AddRange(ToClaims(permissions));
 
-        if (user.ReadOnly)
+        if (_config.IsReadOnly(user.Username))
             claims.Add(new Claim(ClaimNames.ReadOnly, "true"));
 
         var creds = new SigningCredentials(_jwt.SecretKey, SecurityAlgorithms.HmacSha256);
@@ -284,38 +272,14 @@ public class AuthService : IAuthService
     {
         throw new NotImplementedException();
     }
-
-    Dictionary<UserRole, List<UserPermit>> RolesPermits = CreateRolesPermits();
-
-    private static Dictionary<UserRole, List<UserPermit>> CreateRolesPermits()
-    {
-        var result = new Dictionary<UserRole, List<UserPermit>>();
-        result.Add(UserRole.SuperAdmin, new List<UserPermit>()
-        {
-            new UserPermit("lab", "product_types", new List<string>(){"add","edit","remove" }),
-            new UserPermit("lab", "user_management", new List<string>(){"change_users_permits" }),
-        });
-        result.Add(UserRole.Admin, new List<UserPermit>()
-        {
-            new UserPermit("lab", "product_types", new List<string>(){"add","edit","remove" }),
-            new UserPermit("lab", "user_management", new List<string>()),
-        });
-        result.Add(UserRole.Operator, new List<UserPermit>()
-        {
-            new UserPermit("lab", "product_types", new List<string>()),
-        });
-        result.Add(UserRole.View, new List<UserPermit>()
-        {
-        });
-        return result;
-    }
-
+   
     private List<UserPermit> GetPermissions(List<UserRole> roles)
     {
         var permissions = new Dictionary<string, Dictionary<string, HashSet<string>>>();//domain->scope->permits
         foreach (var role in roles)
         {
-            if (!RolesPermits.TryGetValue(role, out var rolePermits))
+            var rolePermits = _config.GetPermits(role);
+            if (!rolePermits.Any())
                 continue;
 
             FillRolePermits(ref permissions, rolePermits);
@@ -331,7 +295,7 @@ public class AuthService : IAuthService
         return result;
     }
 
-    private static void FillRolePermits(ref Dictionary<string, Dictionary<string, HashSet<string>>> permissions, List<UserPermit> rolePermits)
+    private static void FillRolePermits(ref Dictionary<string, Dictionary<string, HashSet<string>>> permissions, IEnumerable<UserPermit> rolePermits)
     {
         foreach (var rolePermit in rolePermits)
         {

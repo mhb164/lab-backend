@@ -2,13 +2,13 @@
 
 public static class ConfigDbContextExtension
 {
-    public static void ConfigDbContext(this IServiceCollection services, ConfigurationManager? configuration)
+    public static void ConfigDbContext(this IServiceCollection services, ILogger? logger, ConfigurationManager? configuration)
     {
         services.AddScoped<IBusinessUnitOfWork, BusinessUnitOfWork>();
 
         var businessDbOptions = BusinessDbOptions.ToModel(configuration?.GetSection(BusinessDbOptions.ConfigName)?.Get<BusinessDbOptions>());
         services.AddScoped(BusinessDbContextFactory(businessDbOptions));
-        Log.Information("Business {Provider} configured", businessDbOptions.Provider);
+        logger?.LogInformation("Business {Provider} configured", businessDbOptions.Provider);
 
     }
 

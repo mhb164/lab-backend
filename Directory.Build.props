@@ -5,7 +5,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 
-		<VersionPrefix>1.9.0</VersionPrefix>
+		<VersionPrefix>1.10.0</VersionPrefix>
 		<VersionSufix>alpha</VersionSufix>
 
 		<Version>$(VersionPrefix)</Version>

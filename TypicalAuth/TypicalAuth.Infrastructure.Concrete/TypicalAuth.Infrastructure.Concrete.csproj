@@ -17,7 +17,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\Shared\Shared.csproj" />
 	  <ProjectReference Include="..\TypicalAuth.BusinessLogic\TypicalAuth.BusinessLogic.csproj" />
 	  <ProjectReference Include="..\TypicalAuth.Infrastructure\TypicalAuth.Infrastructure.csproj" />
 	</ItemGroup>

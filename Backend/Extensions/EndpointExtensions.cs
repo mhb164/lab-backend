@@ -20,7 +20,7 @@ public static class EndpointExtensions
     private static ContextOverview CreateContextOverview(HttpContext httpContext)
     {
         var clientUser = httpContext?.GetClientUser();
-        var contextOverview = new ContextOverview(Aid.ProductName, Aid.AppInformationalVersion,
+        var contextOverview = new ContextOverview(Aid.AppInfo.ProductName, Aid.AppInfo.InformationalVersion,
             clientIpAddress: httpContext?.Connection?.RemoteIpAddress?.ToString(),
             authenticated: clientUser != null);
 
@@ -31,22 +31,22 @@ public static class EndpointExtensions
     {
         endpoints.MapGet("/ProductTypes",
             async (IProductTypesService service, CancellationToken cancellationToken)
-                => (await service.GetAllAsync(cancellationToken)).Map())
+               => await service.GetAllAsync(cancellationToken).MapAsync())
             .WithMetadata(AuthPermissions.ProductTypes);
 
         endpoints.MapGet("/ProductTypes/{id}",
             async (IProductTypesService service, int id, CancellationToken cancellationToken)
-                => (await service.GetByIdAsync(id, cancellationToken)).Map())
+                => await service.GetByIdAsync(id, cancellationToken).MapAsync())
             .WithMetadata(AuthPermissions.ProductTypes);
 
         endpoints.MapPost("/ProductTypes",
             async (IProductTypesService service, [FromBody] ProductTypeDto @new, CancellationToken cancellationToken)
-                => (await service.AddAsync(@new, cancellationToken)).Map())
+                => await service.AddAsync(@new, cancellationToken).MapAsync())
             .WithMetadata(AuthPermissions.ProductTypesAdd);
 
         endpoints.MapPut("/ProductTypes/{id}",
             async (IProductTypesService service, int id, [FromBody] ProductTypeUpdateDto updated, CancellationToken cancellationToken)
-                => (await service.UpdateAsync(id, updated, cancellationToken)).Map())
+                => await service.UpdateAsync(id, updated, cancellationToken).MapAsync())
             .WithMetadata(AuthPermissions.ProductTypesEdit);
 
         return endpoints;

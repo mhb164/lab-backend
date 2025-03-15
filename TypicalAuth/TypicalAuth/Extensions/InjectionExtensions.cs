@@ -1,11 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using TypicalAuth.Repositories;
-
-namespace TypicalAuth.Extensions;
+﻿namespace TypicalAuth.Extensions;
 
 public static class InjectionExtensions
 {
-    public static IServiceCollection AddTypicalAuth(this IServiceCollection services, JwtConfig jwtConfig,
+    public static IServiceCollection AddTypicalAuth(this IServiceCollection services, AuthConfig config, JwtConfig jwtConfig,
        Func<IServiceProvider, AuthDbContext> authDbContextFactory,
        Func<IServiceProvider, AuthService>? authServiceFactory = null,
        Func<IServiceProvider, UserContext>? userContextFactory = null,
@@ -15,6 +12,7 @@ public static class InjectionExtensions
        Func<IServiceProvider, UserTokenObsoleteRepository>? userTokenObsoleteRepositoryFactory = null,
        Func<IServiceProvider, AuthUnitOfWork>? authUnitOfWorkFactory = null)
     {
+        services.AddSingleton(config);
         services.AddSingleton(jwtConfig);
         services.AddScoped(authDbContextFactory);
 
@@ -56,7 +54,7 @@ public static class InjectionExtensions
         return services;
     }
 
-    public static async Task<IServiceProvider> WarmUpTypicalAuth(this IServiceProvider services, string adminDefaultPassword)
+    public static async Task<IServiceProvider> WarmUpTypicalAuth(this IServiceProvider services, ILogger? logger)
     {
         using (var scope = services.CreateScope())
         {
@@ -64,7 +62,7 @@ public static class InjectionExtensions
             await authDbContext.InitialAsync();
 
             var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
-            await authService.EnsureDefaultUsersExistsAsync(adminDefaultPassword);
+            await authService.EnsureDefaultUsersExistsAsync();
         }
         return services;
     }

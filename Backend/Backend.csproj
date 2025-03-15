@@ -14,12 +14,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Basis\Common\Common.csproj" />
+	  <ProjectReference Include="..\Basis\Shared.Backend\Shared.Backend.csproj" />
+	  <ProjectReference Include="..\Basis\Shared.TypicalAuth\Shared.TypicalAuth.csproj" />
+	  <ProjectReference Include="..\Basis\Shared\Shared.csproj" />
 	  <ProjectReference Include="..\Core\BusinessLogic\BusinessLogic.csproj" />
 	  <ProjectReference Include="..\Core\Domain\Domain.csproj" />
 	  <ProjectReference Include="..\Core\Infrastructure.Concrete\Infrastructure.Concrete.csproj" />
 	  <ProjectReference Include="..\Core\Infrastructure\Infrastructure.csproj" />
-	  <ProjectReference Include="..\Shared.Backend\Shared.Backend.csproj" />
-	  <ProjectReference Include="..\Shared\Shared.csproj" />
+	  <ProjectReference Include="..\TypicalAuth\TypicalAuth.BusinessLogic\TypicalAuth.BusinessLogic.csproj" />
+	  <ProjectReference Include="..\TypicalAuth\TypicalAuth.Infrastructure.Concrete\TypicalAuth.Infrastructure.Concrete.csproj" />
+	  <ProjectReference Include="..\TypicalAuth\TypicalAuth.Infrastructure\TypicalAuth.Infrastructure.csproj" />
 	  <ProjectReference Include="..\TypicalAuth\TypicalAuth\TypicalAuth.csproj" />
 	</ItemGroup>
 

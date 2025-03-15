@@ -1,26 +1,28 @@
 var builder = WebApplication.CreateBuilder(args);
-builder.Host.ConfigureLogger(builder.Configuration);
-Log.Information("{ProductName} v{AppInformationalVersion} started.", Aid.ProductName, Aid.AppInformationalVersion);
+var logger = builder.Host.ConfigureLogger(builder.Configuration);
+
+logger.LogInformation("{AppInfo} started.", Aid.AppInfo);
 try
 {
     var hostingConfig = WebHostingOptions.ToModel(builder.Configuration?.GetSection(WebHostingOptions.ConfigName)?.Get<WebHostingOptions>());
-    builder.WebHost.ConfigWebHost(hostingConfig);
+    builder.WebHost.ConfigWebHost(logger, hostingConfig);
 
-    builder.Services.ProvideServices(builder.Configuration);
+    builder.Services.ProvideServices(logger, builder.Configuration);
 
     var app = builder.Build();
-    await app.Services.WarmUp(builder.Configuration);
-    app.Prepare();
+    await app.Services.WarmUp(logger, builder.Configuration);
+    app.PrepareDefaults(logger);
+    app.UseMiddleware<AuthMiddleware>();
     app.MapEndpoints();
     await app.RunAsync();
 
-    Log.Information("{ProductName} v{AppInformationalVersion} stopped.", Aid.ProductName, Aid.AppInformationalVersion);
+    logger.LogInformation("{AppInfo} stopped.", Aid.AppInfo);
 }
-catch(Exception ex)
+catch (Exception ex)
 {
-    Log.Error(ex, "{ProductName} v{AppInformationalVersion} exception.", Aid.ProductName, Aid.AppInformationalVersion);
+    logger.LogError(ex, "{AppInfo} exception.", Aid.AppInfo);
 }
 finally
 {
-    await Log.CloseAndFlushAsync();
+    await builder.Host.FinalizeLoggerAsync();
 }

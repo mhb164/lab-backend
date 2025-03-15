@@ -3,21 +3,12 @@
 public static class InjectionExtensions
 {
     public static IServiceCollection ProvideServices(
-         this IServiceCollection services, ConfigurationManager? configuration)
+         this IServiceCollection services, ILogger? logger, ConfigurationManager? configuration)
     {
-        services.AddCors();
-        services.AddTypicalAuth(configuration);
+        services.PrepareDefaults(logger);
+        services.AddTypicalAuth(logger,configuration);
 
-        // Set the JSON serializer options
-        services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
-        {
-            options.SerializerOptions.PropertyNameCaseInsensitive = false;
-            options.SerializerOptions.PropertyNamingPolicy = null;
-            options.SerializerOptions.WriteIndented = true;
-            options.SerializerOptions.IncludeFields = false;
-        });     
-
-        services.ConfigDbContext(configuration);
+        services.ConfigDbContext(logger,configuration);
         services.AddScoped<IProductTypesRepository, ProductTypesRepository>();
         services.AddScoped<IProductTypesService, ProductTypesService>();
 
@@ -25,9 +16,10 @@ public static class InjectionExtensions
     }
 
     public static async Task<IServiceProvider> WarmUp(
-         this IServiceProvider services, ConfigurationManager? configuration)
+         this IServiceProvider services, ILogger? logger, ConfigurationManager? configuration)
     {
-        await services.WarmUpTypicalAuth(configuration?.GetSection($"AdminDefaultPassword")?.Value ?? string.Empty);
+        await services.WarmUpTypicalAuth(logger);
+
         using (var scope = services.CreateScope())
         {
             var businessDbContext = scope.ServiceProvider.GetRequiredService<BusinessDbContext>();

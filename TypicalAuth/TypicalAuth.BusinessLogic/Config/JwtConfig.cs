@@ -1,6 +1,6 @@
 ﻿namespace TypicalAuth.Config;
 
-public class JwtConfig
+public sealed class JwtConfig
 {
     public readonly string Issuer;
     public readonly SymmetricSecurityKey SecretKey;

@@ -10,7 +10,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\Shared\Shared.csproj" />
+	  <ProjectReference Include="..\..\Basis\Common\Common.csproj" />
+	  <ProjectReference Include="..\..\Basis\Shared.TypicalAuth\Shared.TypicalAuth.csproj" />
+	  <ProjectReference Include="..\..\Basis\Shared\Shared.csproj" />
 	  <ProjectReference Include="..\Domain\Domain.csproj" />
 	</ItemGroup>
 
