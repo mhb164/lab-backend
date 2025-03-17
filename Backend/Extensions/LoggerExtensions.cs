@@ -7,7 +7,7 @@ public static class LoggerExtensions
 {
     public static Microsoft.Extensions.Logging.ILogger ConfigureLogger(this IHostBuilder hostBuilder, IConfiguration configuration)
     {
-        var logPrefix = Aid.AppInfo.ProductName!.Replace(" ","");
+        var logPrefix = Aid.AppInfo.Text!.Replace(" ","-");
         var loggingDirectory = configuration.GetSection($"LogDirectory")?.Value ?? string.Empty;
 
         var resolvedLoggingDirectory = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, loggingDirectory));
@@ -17,11 +17,11 @@ public static class LoggerExtensions
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Information()
             .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-            .WriteTo.File($"{resolvedLoggingDirectory}\\{logPrefix}Logs-.log",
+            .WriteTo.File($"{resolvedLoggingDirectory}\\{logPrefix}-Logs-.log",
                           rollingInterval: RollingInterval.Day,
                           outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}]{Scope} {Message:lj}{NewLine}{Exception}",
                           rollOnFileSizeLimit: true, fileSizeLimitBytes: 10 * 1024 * 1024, shared: true, retainedFileCountLimit: 180)
-            .WriteTo.File($"{resolvedLoggingDirectory}\\{logPrefix}Errors-.log",
+            .WriteTo.File($"{resolvedLoggingDirectory}\\{logPrefix}-Errors-.log",
                           restrictedToMinimumLevel: LogEventLevel.Error,
                           rollingInterval: RollingInterval.Day,
                           outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}]{Scope} {Message:lj}{NewLine}{Exception}",
