@@ -11,9 +11,9 @@
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.3.0" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.2" />
-		<PackageReference Include="System.DirectoryServices.Protocols" Version="9.0.2" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(CommonPackageVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(CommonPackageVersion)" />
+		<PackageReference Include="System.DirectoryServices.Protocols" Version="$(CommonPackageVersion)" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.5.0" />	</ItemGroup>
 
 	<ItemGroup>
