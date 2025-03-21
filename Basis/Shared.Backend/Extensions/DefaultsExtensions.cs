@@ -2,8 +2,17 @@
 
 public static class DefaultsExtensions
 {
-    public static IServiceCollection PrepareDefaults(this IServiceCollection services, ILogger? logger, bool addCors = true, bool configureJsonOptions = true)
+    public static IServiceCollection PrepareDefaults(this IServiceCollection services, ILogger? logger, bool addWindowsService = true, bool addCors = true, bool configureJsonOptions = true)
     {
+        services.AddSingleton(Aid.AppInfo);
+
+        if (addWindowsService)
+        {
+            services.AddWindowsService();
+            services.AddHostedService<LiveService>();
+            logger?.LogInformation("WindowsService support added.");
+        }
+
         if (addCors)
         {
             services.AddCors();

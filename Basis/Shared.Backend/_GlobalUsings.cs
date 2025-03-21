@@ -1,13 +1,15 @@
-﻿global using Microsoft.AspNetCore.Builder;
+﻿global using Common;
+global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Net.Http.Headers;
 global using Shared.Config;
 global using Shared.Middleware;
 global using Shared.Model;
+global using Shared.Services;
 global using System.Net;
 global using System.Reflection;
 global using System.Text.Json;
-global using Common;

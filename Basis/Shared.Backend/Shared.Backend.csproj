@@ -9,6 +9,7 @@
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(CommonPackageVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="$(CommonPackageVersion)" />
 	</ItemGroup>
 
 	<ItemGroup>
