@@ -2,6 +2,7 @@
 
 public interface IAuthService
 {
+    SignInOptions GetSignInOptions();
     Task<ServiceResult<Token>> SignInAsync(SignInRequest request, CancellationToken cancellationToken);
     Task<ServiceResult<Token>> RefreshTokenAsync(string? refreshToken, CancellationToken cancellationToken);
     Task<ServiceResult> SignOutAsync(CancellationToken cancellationToken);

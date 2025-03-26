@@ -2,7 +2,7 @@
 
 public class UserLdapAccount
 {
-    public required Guid Id { get; set; }
+    public Guid Id { get; set; }
     public required Guid UserId { get; set; }
     public required string Username { get; set; }
     public required string Domain { get; set; }

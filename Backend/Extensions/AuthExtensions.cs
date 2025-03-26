@@ -12,6 +12,13 @@ public static class AuthExtensions
         var authDbOptions = AuthDbOptions.ToModel(configuration?.GetSection(AuthDbOptions.ConfigName)?.Get<AuthDbOptions>());
         var authConfig = new AuthConfig();
 
+        var authOptions = configuration?.GetSection(AuthOptions.ConfigName)?.Get<AuthOptions>();
+        if (authOptions?.Domains != null)
+        {
+            foreach (var authOption in authOptions.Domains)
+                authConfig.AddDomain(authOption.Displayname, authOption.Name);
+        }
+
         authConfig.Add(UserRole.SuperAdmin,
             new UserPermit("lab", "product_types", new List<string>() { "add", "edit", "remove" }),
             new UserPermit("lab", "user_management", new List<string>() { "change_users_permits" }));

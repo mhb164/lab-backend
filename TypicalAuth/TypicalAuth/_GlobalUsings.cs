@@ -22,3 +22,4 @@ global using TypicalAuth.Interfaces;
 global using TypicalAuth.Model;
 global using TypicalAuth.Repositories;
 global using TypicalAuth.Services;
+global using System.DirectoryServices.ActiveDirectory;

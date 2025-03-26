@@ -2,6 +2,7 @@
 
 public sealed partial class AuthConfig
 {
+    private readonly Dictionary<string, Domain> _domains = new Dictionary<string, Domain>(StringComparer.OrdinalIgnoreCase);
     private readonly List<DefaultUser> _defaultUsers = new List<DefaultUser>();
     private readonly Dictionary<string, DefaultUser> _readOnlyUsers = new Dictionary<string, DefaultUser>(StringComparer.OrdinalIgnoreCase);
 
@@ -11,6 +12,7 @@ public sealed partial class AuthConfig
     private Func<string, string, (Guid? TokenId, Guid UserId)> _fromJWTFunc;
 
     public IEnumerable<DefaultUser> DefaultUsers => _defaultUsers;
+    public IEnumerable<Domain> Domains => _domains.Values;
 
     public bool IsReadOnly(string username)
         => _readOnlyUsers.ContainsKey(username);
@@ -70,5 +72,21 @@ public sealed partial class AuthConfig
             return Enumerable.Empty<UserPermit>();
 
         return rolePermits;
+    }
+
+    public AuthConfig AddDomain(string? displayname, string? name)
+    {
+        var domain  = new Domain(displayname, name);
+        if (_domains.ContainsKey(domain.Displayname))
+            throw new InvalidOperationException($"Duplicate domain displayname ({domain.Displayname})!");
+
+        _domains.Add(domain.Displayname, domain);
+        return this;
+    }
+
+    public Domain GetDomain(string type)
+    {
+        _domains.TryGetValue(type, out var domain);
+        return domain;
     }
 }

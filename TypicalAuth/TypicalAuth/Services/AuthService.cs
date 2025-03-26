@@ -1,7 +1,13 @@
-﻿namespace TypicalAuth.Services;
+﻿using System.Collections.Generic;
+using TypicalAuth.Ldap;
+using TypicalAuth.Model;
+
+namespace TypicalAuth.Services;
 
 public class AuthService : IAuthService
 {
+    private readonly static string LocalType = "Local";
+
     private readonly ILogger? _logger;
     private readonly AuthConfig _config;
     private readonly IAuthUnitOfWork _unitOfWork;
@@ -11,6 +17,7 @@ public class AuthService : IAuthService
     private readonly IUserTokenObsoleteRepository _tokenHistoryRepository;
     private readonly JwtConfig _jwt;
     private readonly ClientUser? _clientUser;
+    private readonly HashSet<string> _signInTypes;
 
     public AuthService(ILogger<AuthService>? logger, AuthConfig config,
         IAuthUnitOfWork unitOfWork,
@@ -30,6 +37,11 @@ public class AuthService : IAuthService
         _tokenHistoryRepository = tokenHistoryRepository ?? throw new ArgumentNullException(nameof(tokenHistoryRepository));
         _jwt = jwtConfig ?? throw new ArgumentNullException(nameof(jwtConfig));
         _clientUser = userContext.User;
+
+        _signInTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var item in _config.Domains)
+            _signInTypes.Add(item.Displayname);
+        _signInTypes.Add(LocalType);
     }
 
     public async Task EnsureDefaultUsersExistsAsync()
@@ -101,18 +113,23 @@ public class AuthService : IAuthService
         return ServiceResult.Success();
     }
 
+    public SignInOptions GetSignInOptions()
+        => new SignInOptions(_signInTypes);
+
     public async Task<ServiceResult<Token>> SignInAsync(SignInRequest request, CancellationToken cancellationToken)
     {
         var serviceResult = new ServiceResult<Token>();
-        var validationResult = request.Validate();
-        if(validationResult.IsFailed)
-            serviceResult.BadRequest(validationResult.Message!);
+        var validationResult = request.Validate(_signInTypes.Contains);
+
+        if (validationResult.IsFailed)
+            return serviceResult.BadRequest(validationResult.Message!);
 
         var validation = await ValidateCredentials(request, cancellationToken);
-        var authType = ClientAuthType.Locally;
         if (validation.Value is null || validation.IsFailed)
-            return serviceResult.Unauthorized($"Validate credentials failed ({validation.Message})");
-        var user = validation.Value!;
+            return serviceResult.Unauthorized(validation.Message);
+
+        var user = validation.Value!.User;
+        var authType = validation.Value!.AuthType;
 
         var tokenId = Guid.NewGuid();
         var newToken = new UserToken()
@@ -247,32 +264,97 @@ public class AuthService : IAuthService
         return tokenId.ToString("N");
     }
 
-    private async Task<ServiceResult<User>> ValidateCredentials(SignInRequest request, CancellationToken cancellationToken)
+    private async Task<ServiceResult<ValidateCredentialResult>> ValidateCredentials(SignInRequest request, CancellationToken cancellationToken)
     {
-        //if (request.Username.Contains("@"))
-        //    return await ValidateCredentialsOnDomain(request, cancellationToken);
+        if (request.Type == LocalType)
+            return await ValidateCredentialsLocaly(request.Username!, request.Password!, cancellationToken);
 
-        var serviceResult = new ServiceResult<User>();
-        var user = await _userRepository.GetByNameAsync(request.Username, cancellationToken);
+        var domain = _config.GetDomain(request.Type!);
+        if (domain != null)
+            return await ValidateCredentialsLdap(request.Username!, request.Password!, domain.Name, cancellationToken);
+
+
+        return new ServiceResult<ValidateCredentialResult>().BadRequest($"{request.Type} type is not implemented!");
+    }
+
+    private async Task<ServiceResult<ValidateCredentialResult>> ValidateCredentialsLocaly(string username, string password, CancellationToken cancellationToken)
+    {
+        var serviceResult = new ServiceResult<ValidateCredentialResult>();
+        var user = await _userRepository.GetByNameAsync(username, cancellationToken);
 
         if (user is null)
-            return serviceResult.Unauthorized("Username is not valid");
+            return serviceResult.Unauthorized("Username or password is not valid");
 
         if (!user.Activation)
-            return serviceResult.Unauthorized("User not is not active!");
+            return serviceResult.Unauthorized("User is not active!");
 
-        if (!_passwordHasher.Verify(user.Password, request.Password))
-            return serviceResult.Unauthorized("Password is not valid");
+        if (!_passwordHasher.Verify(user.Password, password))
+            return serviceResult.Unauthorized("Username or password is not valid");
 
-        await Task.CompletedTask;
+        return serviceResult.Success(ValidateCredentialResult.Localy(user));
+    }
+
+    private async Task<ServiceResult<ValidateCredentialResult>> ValidateCredentialsLdap(string username, string password, string domainName, CancellationToken cancellationToken)
+    {
+        var serviceResult = new ServiceResult<ValidateCredentialResult>();
+        var user = await _userRepository.GetByLdapAsync(username, domainName, cancellationToken);
+
+        if (user is null)
+        {
+            var createUserResult = await CreateUserFromLdap(username, password, domainName, cancellationToken);
+            if (createUserResult.Value is null || createUserResult.IsFailed)
+                return serviceResult.Unauthorized(createUserResult.Message!);
+
+            return serviceResult.Success(ValidateCredentialResult.Ldap(createUserResult.Value));
+        }
+
+        if (!LdapClient.Validate(username, password, domainName))
+            return serviceResult.Unauthorized("Username or password is not valid");
+
+        return serviceResult.Success(ValidateCredentialResult.Ldap(user));
+    }
+
+    private async Task<ServiceResult<User>> CreateUserFromLdap(string username, string password, string domainName, CancellationToken cancellationToken)
+    {
+        var serviceResult = new ServiceResult<User>();
+
+        var userdata = LdapClient.GetData(username, password, domainName);
+        if (userdata is null)
+            return serviceResult.Unauthorized("Username or password is not valid");
+
+        var userId = Guid.NewGuid();
+        var ldapAccountId = Guid.NewGuid();
+        var user = new User()
+        {
+            Id = userId,
+            Activation = true,
+            Username = userdata.UserPrincipalName.Replace("@", "_").Replace(".", "_"),
+            Password = string.Empty,
+            ChangePasswordRequired = true,
+            Roles = new List<UserRole>() { UserRole.View },
+            Firstname = userdata.GivenName,
+            Lastname = userdata.Surname,
+            Nickname = userdata.GivenName,
+            LdapAccounts = new List<UserLdapAccount>()
+            {
+                new UserLdapAccount()
+                {
+                    Id = ldapAccountId,
+                    UserId = userId,
+                    Username= username,
+                    Domain = domainName
+                }
+            },
+            Emails = new List<UserEmail>(),
+        };
+
+        user = await _userRepository.AddAsync(user, CancellationToken.None);
+        await _unitOfWork.CommitAsync(CancellationToken.None);
+        _logger?.LogInformation("{Username} user added.", userdata.UserPrincipalName);
+
         return serviceResult.Success(user);
     }
 
-    private async Task<ServiceResult<User>> ValidateCredentialsOnDomain(SignInRequest request, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-   
     private List<UserPermit> GetPermissions(List<UserRole> roles)
     {
         var permissions = new Dictionary<string, Dictionary<string, HashSet<string>>>();//domain->scope->permits

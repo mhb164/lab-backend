@@ -19,18 +19,15 @@ public class UserData
     {
         if (string.IsNullOrWhiteSpace(userPrincipalName))
             throw new ArgumentException($"{nameof(userPrincipalName)} is required!", nameof(userPrincipalName));
-        if (string.IsNullOrWhiteSpace(givenName))
-            throw new ArgumentException($"{nameof(givenName)} is required!", nameof(givenName));
-        if (string.IsNullOrWhiteSpace(surname))
-            throw new ArgumentException($"{nameof(surname)} is required!", nameof(surname));
-        if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException($"{nameof(email)} is required!", nameof(email));
+
+        if (string.IsNullOrWhiteSpace(givenName) && string.IsNullOrWhiteSpace(surname))
+            throw new ArgumentException($"{nameof(givenName)} or {nameof(surname)} is required!");
 
         UserPrincipalName = userPrincipalName;
-        GivenName = givenName;
-        Surname = surname;
-        Email = email;
+        GivenName = givenName ?? string.Empty;
+        Surname = surname ?? string.Empty;
+        Email = email ?? string.Empty;
     }
     public override string ToString()
-            => $"{UserPrincipalName}: [GivenName:{GivenName}][Surname:{Surname}][Email:{Email}]";
+        => $"{UserPrincipalName} >> [GivenName:{GivenName}][Surname:{Surname}][Email:{Email}]";
 }

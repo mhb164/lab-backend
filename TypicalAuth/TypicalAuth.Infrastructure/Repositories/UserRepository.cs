@@ -1,4 +1,6 @@
-﻿namespace TypicalAuth.Repositories;
+﻿using System.Xml.Linq;
+
+namespace TypicalAuth.Repositories;
 
 public class UserRepository : IUserRepository
 {
@@ -28,6 +30,18 @@ public class UserRepository : IUserRepository
             .Include(u => u.Emails)
             .FirstOrDefaultAsync(u => u.Username.ToLower() == name, cancellationToken);
     }
+
+    public async Task<User?> GetByLdapAsync(string username, string domainName, CancellationToken cancellationToken)
+    {
+        var userLdapAccount = await _context.UserLdapAccounts
+            .FirstOrDefaultAsync(ula => ula.Username.ToLower() == username && ula.Domain.ToLower() == domainName, cancellationToken);
+
+        if (userLdapAccount == null)
+            return null;
+
+        return await GetByIdAsync(userLdapAccount.UserId, cancellationToken);
+    }
+
 
     public async Task<User?> AddAsync(User item, CancellationToken cancellationToken)
     {

@@ -7,4 +7,5 @@ public interface IUserRepository
     Task<User?> AddAsync(User entity, CancellationToken cancellationToken);
     Task<User?> UpdateAsync(User entity, CancellationToken cancellationToken);
     Task<User?> GetByNameAsync(string name, CancellationToken cancellationToken);
+    Task<User?> GetByLdapAsync(string username, string domainName, CancellationToken cancellationToken);
 }

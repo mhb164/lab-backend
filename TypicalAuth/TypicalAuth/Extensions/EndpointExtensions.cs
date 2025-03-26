@@ -9,6 +9,11 @@ public static class EndpointExtensions
         else if (!pathPrefix.StartsWith('/'))
             pathPrefix = $"/{pathPrefix}";
 
+        endpoints.MapGet($"{pathPrefix}/sign-in-options",
+            (IAuthService service)
+                => Results.Ok(service.GetSignInOptions()))
+            .WithMetadata(AuthMetadata.Public);
+
         endpoints.MapPost($"{pathPrefix}/sign-in",
             async ([FromBody] SignInRequest request, IAuthService service, CancellationToken cancellationToken)
                 => await service.SignInAsync(request, cancellationToken).MapAsync())
