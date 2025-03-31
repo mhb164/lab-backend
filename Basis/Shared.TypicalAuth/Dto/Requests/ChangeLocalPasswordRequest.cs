@@ -1,10 +1,16 @@
-﻿namespace Shared.Dto;
+﻿namespace Shared.Dto.Requests;
 
 public partial class ChangeLocalPasswordRequest
 {
     public ChangeLocalPasswordRequest() { /* Method intentionally left empty.*/ }
     public ChangeLocalPasswordRequest(string? currentPassword, string? newPassword)
     {
+        if (string.IsNullOrWhiteSpace(currentPassword))
+            throw new ArgumentException($"{nameof(currentPassword)} is required!", nameof(currentPassword));
+
+        if (string.IsNullOrWhiteSpace(newPassword))
+            throw new ArgumentException($"{nameof(newPassword)} is required!", nameof(newPassword));
+
         CurrentPassword = currentPassword;
         NewPassword = newPassword;
     }

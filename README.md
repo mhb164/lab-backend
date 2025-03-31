@@ -23,3 +23,5 @@ sc query LabBackend
 ## Stop & Delete the Service
 sc stop LabBackend
 sc delete LabBackend
+
+curl https://localhost/labapi/info

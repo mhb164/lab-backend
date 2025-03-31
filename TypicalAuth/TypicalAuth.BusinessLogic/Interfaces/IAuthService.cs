@@ -1,4 +1,6 @@
-﻿namespace TypicalAuth.Interfaces;
+﻿using Shared.Dto.Requests;
+
+namespace TypicalAuth.Interfaces;
 
 public interface IAuthService
 {
@@ -8,4 +10,5 @@ public interface IAuthService
     Task<ServiceResult> SignOutAsync(CancellationToken cancellationToken);
     Task EnsureDefaultUsersExistsAsync();
     Task<ServiceResult> ChangeLocalPasswordRequestAsync(ChangeLocalPasswordRequest request, CancellationToken cancellationToken);
+    Task<ServiceResult<UserInfo>> GetUserInfoAsync(CancellationToken cancellationToken);
 }

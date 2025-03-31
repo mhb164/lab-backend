@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using TypicalAuth.Ldap;
+﻿using Shared.Dto.Requests;
+using Shared.Model;
 using TypicalAuth.Model;
 
 namespace TypicalAuth.Services;
@@ -335,18 +335,27 @@ public class AuthService : IAuthService
             Firstname = userdata.GivenName,
             Lastname = userdata.Surname,
             Nickname = userdata.GivenName,
-            LdapAccounts = new List<UserLdapAccount>()
-            {
-                new UserLdapAccount()
-                {
-                    Id = ldapAccountId,
-                    UserId = userId,
-                    Username= username,
-                    Domain = domainName
-                }
-            },
+            LdapAccounts = new List<UserLdapAccount>(),
             Emails = new List<UserEmail>(),
         };
+
+        user.LdapAccounts.Add(new UserLdapAccount()
+        {
+            Id = ldapAccountId,
+            UserId = userId,
+            Username = username,
+            Domain = domainName
+        });
+
+        if (!string.IsNullOrWhiteSpace(userdata.Email))
+        {
+            user.Emails.Add(new UserEmail()
+            {
+                Email = userdata.Email,
+                UserId = userId,
+                Verified = false,
+            });
+        }
 
         user = await _userRepository.AddAsync(user, CancellationToken.None);
         await _unitOfWork.CommitAsync(CancellationToken.None);
@@ -405,5 +414,18 @@ public class AuthService : IAuthService
             yield return new Claim(permit.ClaimType, permit.PermissionsAsText);
     }
 
+    public async Task<ServiceResult<UserInfo>> GetUserInfoAsync(CancellationToken cancellationToken)
+    {
+        var serviceResult = new ServiceResult<UserInfo>();
+
+        if (_clientUser is null)
+            return serviceResult.Unauthorized("Please sign in!");
+
+        var user = await _userRepository.GetByIdAsync(_clientUser.Id, cancellationToken);
+        if (user is null)
+            return serviceResult.Unauthorized("Please sign in!");
+
+        return serviceResult.Success(user.ToUserInfo(_config.IsReadOnly(user.Username)));
+    }
 
 }

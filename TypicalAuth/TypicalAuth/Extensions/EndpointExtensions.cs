@@ -34,6 +34,11 @@ public static class EndpointExtensions
                 => await service.SignOutAsync(cancellationToken).MapAsync())
             .WithMetadata(AuthMetadata.TokenIsEnough);
 
+        endpoints.MapGet($"{pathPrefix}/user-info",
+            async (IAuthService service, CancellationToken cancellationToken)
+               => await service.GetUserInfoAsync(cancellationToken).MapAsync())
+           .WithMetadata(AuthMetadata.TokenIsEnough);
+
         return endpoints;
     }
 }
