@@ -16,7 +16,7 @@
 
 		<Authors></Authors>
 		<Company>Tizpusoft</Company>
-		<Copyright>© $(CompanyName) $([System.DateTime]::Now.Year) - All Rights Reserved</Copyright>
+		<Copyright>© $(Company) $([System.DateTime]::Now.Year) - All Rights Reserved</Copyright>
 		<AssemblyTitleSufix>$([System.DateTime]::Now.ToString(yyyy-MM-dd HH:mm:ss zzz))</AssemblyTitleSufix>
 		<Product>Backend Laboratory</Product>
 
