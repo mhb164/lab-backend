@@ -233,12 +233,17 @@ public class AuthService : IAuthService
             new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
         };
 
+        var addPermissions = true;
         if (user.LocallyAvailable)
             claims.Add(new Claim(ClaimNames.LocallyAvailable, "true"));
 
         if (user.ChangePasswordRequired)
+        {
             claims.Add(new Claim(ClaimNames.ChangeLocalPasswordRequired, "true"));
-        else
+            addPermissions = !user.LocallyAvailable;
+        }
+
+        if (addPermissions)
             claims.AddRange(ToClaims(permissions));
 
         if (_config.IsReadOnly(user.Username))

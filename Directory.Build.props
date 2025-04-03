@@ -5,7 +5,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 
-		<VersionPrefix>1.17.0</VersionPrefix>
+		<VersionPrefix>1.18.0</VersionPrefix>
 		<VersionSufix>alpha</VersionSufix>
 
 		<Version>$(VersionPrefix)</Version>
@@ -15,7 +15,7 @@
 		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 
 		<Authors></Authors>
-		<CompanyName>Tizpusoft</CompanyName>
+		<Company>Tizpusoft</Company>
 		<Copyright>© $(CompanyName) $([System.DateTime]::Now.Year) - All Rights Reserved</Copyright>
 		<AssemblyTitleSufix>$([System.DateTime]::Now.ToString(yyyy-MM-dd HH:mm:ss zzz))</AssemblyTitleSufix>
 		<Product>Backend Laboratory</Product>

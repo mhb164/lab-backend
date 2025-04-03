@@ -1,6 +1,6 @@
 ﻿namespace TypicalAuth.Mapping;
 
-public static partial class MappingExtentions
+public static partial class MappingExtensions
 {
     public static UserInfo ToUserInfo(this User modelItem, bool readOnly)
        => new UserInfo(
