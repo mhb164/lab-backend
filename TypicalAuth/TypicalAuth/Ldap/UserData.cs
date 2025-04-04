@@ -13,7 +13,7 @@ public class UserData
     public readonly string Email;
 
     public UserData(Dictionary<string, string> allData)
-        : this(allData[UserPrincipalNameKey], allData[GivenNameKey], allData[SurnameKey], allData[EmailKey]) { }
+        : this(allData[UserPrincipalNameKey], allData[GivenNameKey], allData[SurnameKey], allData.ContainsKey(EmailKey) ? allData[EmailKey] : string.Empty) { }
 
     public UserData(string userPrincipalName, string givenName, string surname, string email)
     {
