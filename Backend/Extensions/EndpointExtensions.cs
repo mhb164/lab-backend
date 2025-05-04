@@ -14,6 +14,37 @@ public static class EndpointExtensions
             return Results.Ok(CreateContextOverview(httpContext));
         }).WithMetadata(AuthPermissions.Public);
 
+        endpoints.MapPost("/crypto", async (EncryptionService service, CryptoRequest request) =>
+        {
+            var serviceResult = new ServiceResult<string>();
+            if (request is null)
+                return serviceResult.BadRequest("request is required!").Map();
+
+            var validateResult = request.Validate();
+            if (validateResult.IsFailed)
+                return serviceResult.BadRequest(validateResult.Message!).Map();
+
+            try
+            {
+                var result = string.Empty;
+                switch (request.Operation!)
+                {
+                    case CryptoOperation.Encrypt:
+                        result = await service.EncryptAsync(request.Content!, request.Password!, request.Iterations!.Value);
+                        break;
+                    case CryptoOperation.Decrypt:
+                        result = await service.DecryptAsync(request.Content!, request.Password!, request.Iterations!.Value);
+                        break;
+                }
+
+                return serviceResult.Success(result).Map();
+            }
+            catch (Exception ex)
+            {
+                return serviceResult.BadRequest(ex.Message!).Map();
+            }
+
+        }).WithMetadata(AuthPermissions.Public);
         return endpoints;
     }
 

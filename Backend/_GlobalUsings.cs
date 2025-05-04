@@ -1,4 +1,5 @@
-﻿global using Laboratory.Backend.Config;
+﻿global using Common;
+global using Laboratory.Backend.Config;
 global using Laboratory.Backend.Dto;
 global using Laboratory.Backend.Extensions;
 global using Laboratory.Backend.Interfaces;
@@ -8,8 +9,10 @@ global using Laboratory.Backend.Services;
 global using Microsoft.AspNetCore.Mvc;
 global using Shared;
 global using Shared.Config;
+global using Shared.Crypto;
 global using Shared.Extensions;
 global using Shared.Model;
+global using Shared.Services;
 global using TypicalAuth;
 global using TypicalAuth.Config;
 global using TypicalAuth.Extensions;

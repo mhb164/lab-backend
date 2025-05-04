@@ -6,6 +6,9 @@ public static class DefaultsExtensions
     {
         services.AddSingleton(Aid.AppInfo);
 
+        services.AddSingleton<EncryptionService>();
+        services.AddSingleton<ICryptoService, CryptoService>();
+        
         if (addWindowsService)
         {
             services.AddWindowsService();
