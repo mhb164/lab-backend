@@ -1,10 +1,13 @@
-﻿namespace Laboratory.Backend.Extensions;
+﻿using System.Threading;
+
+namespace Laboratory.Backend.Extensions;
 
 public static class EndpointExtensions
 {
     public static IEndpointRouteBuilder MapEndpoints(this IEndpointRouteBuilder endpoints)
         => endpoints.MapGeneralEndpoints()
                     .MapAuthEndpoints()
+                    .MapResourcesEndpoints()
                     .MapProductTypesEndpoints();
 
     public static IEndpointRouteBuilder MapGeneralEndpoints(this IEndpointRouteBuilder endpoints)
@@ -45,8 +48,10 @@ public static class EndpointExtensions
             }
 
         }).WithMetadata(AuthPermissions.Public);
+
         return endpoints;
     }
+
 
     private static ContextOverview CreateContextOverview(HttpContext httpContext)
     {
@@ -56,6 +61,20 @@ public static class EndpointExtensions
             authenticated: clientUser != null);
 
         return contextOverview;
+    }
+
+    public static IEndpointRouteBuilder MapResourcesEndpoints(this IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapGet("/resources/{name}",
+            async (IResourcesService service, string name, CancellationToken cancellationToken)
+                => await service.GetResourceAsync(name, cancellationToken).MapAsync())
+            .WithMetadata(AuthPermissions.TokenIsEnough);
+
+        endpoints.MapPost("/resources/{name}",
+            async (IResourcesService service, string name, CancellationToken cancellationToken)
+                => await service.GetResourceAsync(name, cancellationToken).MapAsync())
+            .WithMetadata(AuthPermissions.TokenIsEnough);
+        return endpoints;
     }
 
     public static IEndpointRouteBuilder MapProductTypesEndpoints(this IEndpointRouteBuilder endpoints)

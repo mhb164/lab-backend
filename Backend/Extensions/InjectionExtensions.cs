@@ -1,4 +1,5 @@
-﻿namespace Laboratory.Backend.Extensions;
+﻿
+namespace Laboratory.Backend.Extensions;
 
 public static class InjectionExtensions
 {
@@ -7,12 +8,21 @@ public static class InjectionExtensions
     {
         services.PrepareDefaults(logger);
         services.AddTypicalAuth(logger,configuration);
+        services.AddResources(logger, configuration);
 
         services.ConfigDbContext(logger,configuration);
         services.AddScoped<IProductTypesRepository, ProductTypesRepository>();
         services.AddScoped<IProductTypesService, ProductTypesService>();
 
         return services;
+    }
+
+    private static void AddResources(this IServiceCollection services, ILogger? logger, ConfigurationManager? configuration)
+    {
+        var resourcesConfig = ResourcesOptions.ToModel(configuration?.GetSection(ResourcesOptions.ConfigName)?.Get<ResourcesOptions>());
+        services.AddSingleton(resourcesConfig);
+        services.AddSingleton<IResourcesService, ResourcesService>();
+        logger?.LogInformation("Resources configured {Config}", resourcesConfig);
     }
 
     public static async Task<IServiceProvider> WarmUp(
