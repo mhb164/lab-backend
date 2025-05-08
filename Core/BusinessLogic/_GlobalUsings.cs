@@ -7,3 +7,4 @@ global using Laboratory.Backend.Model;
 global using Microsoft.Extensions.Logging;
 global using Shared.Model;
 global using System;
+global using Shared.FileShare;

@@ -17,3 +17,4 @@ global using TypicalAuth;
 global using TypicalAuth.Config;
 global using TypicalAuth.Extensions;
 global using TypicalAuth.Model;
+global using Shared.FileShare;

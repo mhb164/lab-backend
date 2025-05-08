@@ -28,6 +28,5 @@ public class ResourcesService : IResourcesService
         var contentType = FileResult.GetContentType(name);
 
         return serviceResult.Success(new FileResult(contents: bytes, contentType: contentType, name: name));
-        throw new NotImplementedException();
     }
 }

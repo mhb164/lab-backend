@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using Shared.FileShare;
+using System.Threading;
 
 namespace Laboratory.Backend.Extensions;
 
@@ -8,6 +9,7 @@ public static class EndpointExtensions
         => endpoints.MapGeneralEndpoints()
                     .MapAuthEndpoints()
                     .MapResourcesEndpoints()
+                    .MapFileShareEndpoints()
                     .MapProductTypesEndpoints();
 
     public static IEndpointRouteBuilder MapGeneralEndpoints(this IEndpointRouteBuilder endpoints)
@@ -74,6 +76,47 @@ public static class EndpointExtensions
             async (IResourcesService service, string name, CancellationToken cancellationToken)
                 => await service.GetResourceAsync(name, cancellationToken).MapAsync())
             .WithMetadata(AuthPermissions.TokenIsEnough);
+        return endpoints;
+    }
+
+    public static IEndpointRouteBuilder MapFileShareEndpoints(this IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost("/share/folders",
+            async (IFileShareService service, BlankRequest request, CancellationToken cancellationToken)
+                => await service.GetFoldersAsync(cancellationToken).MapAsync())
+            .WithMetadata(AuthPermissions.TokenIsEnough);
+
+        endpoints.MapPost("/share/create-folder",
+            async (IFileShareService service, CreateFolderRequest request, CancellationToken cancellationToken)
+                => await service.HandleAsync(request, cancellationToken).MapAsync())
+            .WithMetadata(AuthPermissions.TokenIsEnough);
+
+        endpoints.MapPost("/share/rename-folder",
+            async (IFileShareService service, RenameFolderRequest request, CancellationToken cancellationToken)
+                => await service.HandleAsync(request, cancellationToken).MapAsync())
+            .WithMetadata(AuthPermissions.TokenIsEnough);
+
+        endpoints.MapPost("/share/delete-folder",
+            async (IFileShareService service, DeleteFolderRequest request, CancellationToken cancellationToken)
+                => await service.HandleAsync(request, cancellationToken).MapAsync())
+            .WithMetadata(AuthPermissions.TokenIsEnough);
+
+        endpoints.MapPost("/share/files",
+            async (IFileShareService service, FolderFilesRequest request, CancellationToken cancellationToken)
+                => await service.HandleAsync(request, cancellationToken).MapAsync())
+            .WithMetadata(AuthPermissions.TokenIsEnough);
+
+        endpoints.MapPost("/share/upload/{folder}",
+            async (IFileShareService service, string folder, IFormFile files, CancellationToken cancellationToken)
+                => await service.UploadAsync(folder, files.Length, files.FileName, files.CopyToAsync, cancellationToken).MapAsync())
+            .WithMetadata(AuthPermissions.TokenIsEnough)
+            .DisableAntiforgery();
+
+        endpoints.MapPost("/share/download/{folder}/{name}",
+            async (IFileShareService service, string folder, string name, CancellationToken cancellationToken)
+                => await service.DownloadAsync(folder, name, cancellationToken).MapAsync())
+            .WithMetadata(AuthPermissions.TokenIsEnough);
+
         return endpoints;
     }
 
