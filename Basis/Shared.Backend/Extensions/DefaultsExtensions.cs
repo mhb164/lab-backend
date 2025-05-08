@@ -8,7 +8,7 @@ public static class DefaultsExtensions
 
         services.AddSingleton<EncryptionService>();
         services.AddSingleton<ICryptoService, CryptoService>();
-        
+
         if (addWindowsService)
         {
             services.AddWindowsService();
@@ -46,9 +46,11 @@ public static class DefaultsExtensions
         if (useCorsAllowAny)
         {
             app.UseCors(builder => builder
-             .AllowAnyOrigin()
-             .AllowAnyMethod()
-             .AllowAnyHeader());
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .WithExposedHeaders("Content-Disposition") 
+                );
             logger?.LogInformation("AllowAny-Cors activated.");
         }
 

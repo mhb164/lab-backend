@@ -112,10 +112,15 @@ public static class EndpointExtensions
             .WithMetadata(AuthPermissions.TokenIsEnough)
             .DisableAntiforgery();
 
-        endpoints.MapPost("/share/download/{folder}/{name}",
-            async (IFileShareService service, string folder, string name, CancellationToken cancellationToken)
-                => await service.DownloadAsync(folder, name, cancellationToken).MapAsync())
+        endpoints.MapPost("/share/download",
+            async (IFileShareService service, DownloadFileRequest request, CancellationToken cancellationToken)
+                => await service.HandleAsync(request, cancellationToken).MapAsync())
             .WithMetadata(AuthPermissions.TokenIsEnough);
+
+        endpoints.MapPost("/share/delete-file",
+           async (IFileShareService service, DeleteFileRequest request, CancellationToken cancellationToken)
+               => await service.HandleAsync(request, cancellationToken).MapAsync())
+           .WithMetadata(AuthPermissions.TokenIsEnough);
 
         return endpoints;
     }

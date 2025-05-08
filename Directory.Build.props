@@ -5,7 +5,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 
-		<VersionPrefix>1.22</VersionPrefix>
+		<VersionPrefix>1.23</VersionPrefix>
 		<VersionSufix>alpha</VersionSufix>
 
 		<Version>$(VersionPrefix)</Version>
@@ -22,7 +22,7 @@
 
 		<RootNamespace>Laboratory.Backend</RootNamespace>
 
-		<EFCoreVersion>9.0.3</EFCoreVersion>
-		<CommonPackageVersion>9.0.3</CommonPackageVersion >
+		<EFCoreVersion>9.0.4</EFCoreVersion>
+		<CommonPackageVersion>9.0.4</CommonPackageVersion >
 	</PropertyGroup>
 </Project>

@@ -185,40 +185,63 @@ public class FileShareService : IFileShareService
         }
     }
 
-    public async Task<ServiceResult<FileResult>> DownloadAsync(string folder, string name, CancellationToken cancellationToken)
+    public async Task<ServiceResult<FileResult>> HandleAsync(DownloadFileRequest request, CancellationToken cancellationToken)
     {
         var serviceResult = new ServiceResult<FileResult>();
         if (!_config.IsValid)
             return serviceResult.NoContent();
 
-        var folderCharacterValidationResult = ValidateCharacters(folder, nameof(folder));
-        if (folderCharacterValidationResult.IsFailed)
-            return serviceResult.BadRequest(folderCharacterValidationResult.Message!);
+        var validationResult = request.Validate(ValidateCharacters);
+        if (validationResult.IsFailed)
+            return serviceResult.BadRequest(validationResult.Message!);
 
-        var nameCharacterValidationResult = ValidateCharacters(name, nameof(name));
-        if (nameCharacterValidationResult.IsFailed)
-            return serviceResult.BadRequest(nameCharacterValidationResult.Message!);
-
-        var directory = Path.Combine(_config.Directory, folder);
+        var directory = Path.Combine(_config.Directory, request.Folder!);
         if (!Directory.Exists(directory))
-            return serviceResult.NotFound($"{folder} directory not found!");
+            return serviceResult.NotFound($"{request.Folder} directory not found!");
 
-        var filePath = Path.Combine(directory, Path.GetFileName(name));
+        var filePath = Path.Combine(directory, Path.GetFileName(request.Name!));
         try
         {
             var bytes = await File.ReadAllBytesAsync(filePath);
-            var contentType = FileResult.GetContentType(name);
+            var contentType = FileResult.GetContentType(request.Name!);
 
-            return serviceResult.Success(new FileResult(contents: bytes, contentType: contentType, name: name));
+            return serviceResult.Success(new FileResult(contents: bytes, contentType: contentType, name: request.Name!));
         }
         catch (Exception ex)
         {
             var trackingId = Guid.NewGuid();
             _logger?.LogError(ex, "[{TrackingId}] An error occurred while download file from '{FilePath}'.", trackingId, filePath);
-            return serviceResult.InternalError(trackingId, $"An error occurred during download file '{name}'!");
+            return serviceResult.InternalError(trackingId, $"An error occurred during download file '{request.Name!}'!");
         }
     }
 
+    public async Task<ServiceResult<FolderFileList>> HandleAsync(DeleteFileRequest request, CancellationToken cancellationToken)
+    {
+        var serviceResult = new ServiceResult<FolderFileList>();
+        if (!_config.IsValid)
+            return serviceResult.NoContent();
+
+        var validationResult = request.Validate(ValidateCharacters);
+        if (validationResult.IsFailed)
+            return serviceResult.BadRequest(validationResult.Message!);
+
+        var directory = Path.Combine(_config.Directory, request.Folder!);
+        if (!Directory.Exists(directory))
+            return serviceResult.NotFound($"{request.Folder} directory not found!");
+
+        var filePath = Path.Combine(directory, Path.GetFileName(request.Name!));
+        try
+        {
+            File.Delete(filePath);
+            return await HandleAsync(new FolderFilesRequest(request.Folder), cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            var trackingId = Guid.NewGuid();
+            _logger?.LogError(ex, "[{TrackingId}] An error occurred while delete file '{FilePath}'.", trackingId, filePath);
+            return serviceResult.InternalError(trackingId, $"An error occurred during delete '{request.Name!}'!");
+        }
+    }
 
     private FolderList CreateFolderList()
     {

@@ -9,5 +9,6 @@ public interface IFileShareService
     Task<ServiceResult<FolderList>> HandleAsync(DeleteFolderRequest request, CancellationToken cancellationToken);
     Task<ServiceResult<FolderFileList>> HandleAsync(FolderFilesRequest request, CancellationToken cancellationToken);
     Task<ServiceResult> UploadAsync(string folder, long length, string name, Func<Stream, CancellationToken, Task> copyToAsync, CancellationToken cancellationToken);
-    Task<ServiceResult<FileResult>> DownloadAsync(string folder, string name, CancellationToken cancellationToken);
+    Task<ServiceResult<FileResult>> HandleAsync(DownloadFileRequest request, CancellationToken cancellationToken);
+    Task<ServiceResult<FolderFileList>> HandleAsync(DeleteFileRequest request, CancellationToken cancellationToken);
 }
